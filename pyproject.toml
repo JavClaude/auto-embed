@@ -1,0 +1,49 @@
+[project]
+name = "recommendations"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "None"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "tensorflow (>=2.19.0,<3.0.0)",
+    "keras (>=3.10.0,<4.0.0)",
+    "pandas (>=2.3.0,<3.0.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "boto3 (>=1.38.40,<2.0.0)",
+    "kink (>=0.8.1,<0.9.0)",
+    "fire (>=0.7.0,<0.8.0)",
+    "tqdm (>=4.67.1,<5.0.0)",
+    "fastapi (>=0.115.13,<0.116.0)",
+    "uvicorn (>=0.34.3,<0.35.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.0"
+black = "^25.1.0"
+pytest = "^8.4.1"
+flake8 = "^7.2.0"
+sqlite-vec = "^0.1.6"
+chromadb = "^1.0.13"
+
+[tool.poetry.group.explo.dependencies]
+jupyter = "^1.1.1"
+
+
+# scripts
+[tool.poetry.scripts]
+train_recommendation_model = "recommendations.src.cli.train_classified_embedding_model_cli:main"
+predict_recommendation_model = "recommendations.src.cli.predict_for_model_release_cli:main"
+what_is_my_recommendation = "recommendations.src.cli.what_is_my_classified_recommendation_cli:main"
+start_recommendation_api = "recommendations.src.api.api:main"
+
+[tool.black]
+line-length = 200
+exclude = '''__init__.py'''

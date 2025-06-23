@@ -1,0 +1,28 @@
+# python stuff
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzwz
+
+# venv
+venv/
+.venv/
+
+# data
+data/
+
+# logs
+logs/
+
+# models
+models/
+
+chroma_db/
+
+.pytest_cache/
+.ruff_cache/
