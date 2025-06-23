@@ -17,7 +17,14 @@ class ClassifiedEmbeddingsChromaDbAdapter(ClassifiedEmbeddingsRepositoryInterfac
     def __init__(self, logger: Logger):
         self.logger = logger
         self.client = chromadb.PersistentClient(path="chroma_db")
-        self.collection = self.client.get_collection("classified_embeddings")
+        try:
+            self.collection = self.client.get_collection("classified_embeddings")
+        except Exception as e:
+            self.logger.error(f"Error getting collection: {e}")
+            self.logger.info("Creating collection")
+            self.collection = self.client.create_collection("classified_embeddings")
+            self.logger.info("Collection created")
+
         self.max_batch_size = 5460
 
     def get_classified_embeddings(self, classified_ref: str) -> ClassifiedEmbeddings:
@@ -30,8 +37,8 @@ class ClassifiedEmbeddingsChromaDbAdapter(ClassifiedEmbeddingsRepositoryInterfac
 
     def get_most_similar_classified_embeddings(self, classified_embeddings: ClassifiedEmbeddings, n: int = 6) -> List[ClassifiedEmbeddings]:
         self.logger.info(f"Getting most similar classified embeddings for {classified_embeddings.classified_ref}")
-        most_similar_classified_refs = self.collection.query(query_embeddings=[classified_embeddings.classified_embeddings], n_results=n)['ids']
-        return [classified_ref for classified_ref in  most_similar_classified_refs if classified_ref != classified_embeddings.classified_ref]
+        most_similar_classified_refs = self.collection.query(query_embeddings=[classified_embeddings.classified_embeddings], n_results=n)["ids"]
+        return [classified_ref for classified_ref in most_similar_classified_refs if classified_ref != classified_embeddings.classified_ref]
 
     def update_classified_embeddings(self, classified_embeddings: ClassifiedEmbeddings) -> None:
         self.logger.info(f"Updating classified embeddings for {classified_embeddings.classified_ref}")

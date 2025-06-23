@@ -5,7 +5,6 @@ from typing import List
 from kink import inject
 
 from recommendations.src.domain.interfaces.classified_embeddings_repository_interface import (
-    ClassifiedEmbeddings,
     ClassifiedEmbeddingsRepositoryInterface,
 )
 from recommendations.src.usescases.queries.what_is_my_classified_recommendations_usecases_query import (

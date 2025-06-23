@@ -1,0 +1,2 @@
+class EmbeddingShapeMismatchError(Exception):
+    pass
