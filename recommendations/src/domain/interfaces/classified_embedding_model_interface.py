@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 
-from recommendations.src.domain.models.dataset_analysis import DatasetAnalysis
+from recommendations.src.domain.entites.dataset_analysis import DatasetAnalysis
 
 
 class ClassifiedEmbeddingModelInterface(ABC):

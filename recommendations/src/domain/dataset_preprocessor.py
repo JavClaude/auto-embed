@@ -1,11 +1,11 @@
 import pandas as pd
 from typing import Dict, List
 
-from recommendations.src.domain.models.columns import (
+from recommendations.src.domain.entites.columns import (
     CategoricalColumns,
     NumericalColumns,
 )
-from recommendations.src.domain.models.dataset_analysis import DatasetAnalysis
+from recommendations.src.domain.entites.dataset_analysis import DatasetAnalysis
 
 
 NUMERICAL_INPUTS_FEATURES_KEY = "numerical_inputs_features"
