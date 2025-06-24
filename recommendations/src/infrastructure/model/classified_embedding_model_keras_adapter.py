@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import (
     Input,
     Dense,
@@ -11,6 +12,7 @@ from tensorflow.keras.layers import (
     Flatten,
     Concatenate,
     Layer,
+    LayerNormalization,
 )
 
 from recommendations.src.domain.dataset_preprocessor import (
@@ -85,7 +87,7 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
             losses[f"{feature_name}_outputs"] = "sparse_categorical_crossentropy"
             loss_weights[f"{feature_name}_outputs"] = 1.0
 
-        autoencoder.compile(optimizer="adam", loss=losses, loss_weights=loss_weights)
+        autoencoder.compile(optimizer=Adam(learning_rate=0.005), loss=losses, loss_weights=loss_weights)
 
         return autoencoder, encoder
 
@@ -116,6 +118,7 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
                 input_dim=len(feature.vocabulary) + 1,
                 output_dim=feature.embedding_dim,
                 name=f"{feature_name}_embedding",
+                
             )(categorical_input_layer)
 
             embedding_layer = Flatten(name=f"{feature_name}_embedding_flatten")(embedding_layer)
@@ -124,7 +127,10 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
         all_features_layer = Concatenate()(embeddings)
 
         for index, hidden_layer_dim in enumerate(hidden_layer_dim):
+            all_features_layer = LayerNormalization()(all_features_layer)
             all_features_layer = Dense(units=hidden_layer_dim, activation="relu", name=f"hidden_layer_{index}")(all_features_layer)
+            all_features_layer = LayerNormalization()(all_features_layer)
+            all_features_layer = Dropout(0.2)(all_features_layer)
 
         bottleneck_layer = Dense(units=bottleneck_layer_dim, activation="tanh", name="bottleneck_layer")(all_features_layer)
 

@@ -16,12 +16,6 @@ Ce projet implémente un système de recommandations qui :
 ```bash
 # Installation des dépendances core
 make install-project
-
-# Installation avec dépendances de développement
-make install-project-dev
-
-# Installation avec environnement d'exploration
-make install-project-exploration
 ```
 
 ## 📋 Utilisation

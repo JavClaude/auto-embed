@@ -14,9 +14,7 @@ from recommendations.src.domain.interfaces.model_registry_interface import (
 from recommendations.src.domain.interfaces.classified_repository_interface import (
     ClassifiedRepositoryInterface,
 )
-from recommendations.src.infrastructure.models.classified_embedding_model_keras_adapter import (
-    KerasAutoencoder,
-)
+from recommendations.src.infrastructure.model.classified_embedding_model_keras_adapter import KerasAutoencoder
 from recommendations.src.usescases.commands.train.train_classified_embedding_model_command import (
     TrainClassifiedEmbeddingsModelCommand,
 )
