@@ -13,6 +13,7 @@ from tensorflow.keras.layers import (
     Concatenate,
     Layer,
     LayerNormalization,
+    Multiply
 )
 
 from recommendations.src.domain.dataset_preprocessor import (
@@ -84,8 +85,11 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
         loss_weights[NUMERICAL_OUTPUTS_KEY] = 1.0
 
         for feature_name in dataset_analysis.categorical_columns.columns:
+            if dataset_analysis.categorical_features_loss_weights is not None:
+                loss_weights[f"{feature_name}_outputs"] = dataset_analysis.categorical_features_loss_weights[feature_name]
+            else:
+                loss_weights[f"{feature_name}_outputs"] = 1.0
             losses[f"{feature_name}_outputs"] = "sparse_categorical_crossentropy"
-            loss_weights[f"{feature_name}_outputs"] = 1.0
 
         autoencoder.compile(optimizer=Adam(learning_rate=0.005), loss=losses, loss_weights=loss_weights)
 
@@ -125,6 +129,7 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
             embeddings.append(embedding_layer)
 
         all_features_layer = Concatenate()(embeddings)
+        print(all_features_layer.shape)
 
         for index, hidden_layer_dim in enumerate(hidden_layer_dim):
             all_features_layer = LayerNormalization()(all_features_layer)

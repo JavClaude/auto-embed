@@ -16,6 +16,7 @@ NUMERICAL_COLUMNS_NAMES = [
     "vehicle_year",
     "vehicle_doors",
     "vehicle_trunk_volume",
+    "vehicle_refined_quotation",
     "vehicle_power_din",
     "vehicle_rated_horse_power",
     "vehicle_max_power",
@@ -34,6 +35,7 @@ NUMERICAL_COLUMNS_NAMES = [
 
 CATEGORICAL_COLUMNS_NAMES = [
     "customer_type",
+    "vehicle_seats",
     "zip_code",
     "vehicle_category",
     "vehicle_make",
