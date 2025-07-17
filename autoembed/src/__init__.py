@@ -1,5 +1,4 @@
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from logging import Logger
 from loguru import logger
@@ -25,9 +24,9 @@ from autoembed.src.infrastructure.data_repository.data_repository_local_csv_adap
 from autoembed.src.infrastructure.model.local_model_registry_adapter import (
     LocalModelRegistryAdapter,
 )
-from autoembed.src.usescases.queries.what_is_my_recommendations_usecases import WhatIsMyRecommendationsUsecases
 
-# Infrastructure layer
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 di[Logger] = logger
 
 di[DataRepositoryInterface] = DataRepositoryLocalCSVAdapter()

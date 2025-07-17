@@ -47,13 +47,23 @@ class PredictForModelReleaseUsecase:
         preprocessed_data = dataset_preprocessor.preprocess(prediction_data)
         embeddings = model.embed(preprocessed_data)
 
-        essential_data = prediction_data[[command.id_column] + command.vector_store.metadata_columns.columns].to_dict(orient="records")
+        if len(command.id_column.columns) > 1:
+            essential_data = prediction_data[command.id_column.columns + command.vector_store.metadata_columns.columns].to_dict(orient="records")
+        else:
+            essential_data = prediction_data[command.id_column.columns[0] + command.vector_store.metadata_columns.columns].to_dict(orient="records")
+
 
         embeddings_batch = BatchOfEmbeddings()
 
         for essential_data, embedding in tqdm.tqdm(zip(essential_data, embeddings), desc="Generating embeddings"):   
+            id = "-".join([str(essential_data[column]) for column in command.id_column.columns])
+            
+            # remove id columns from metadata data
+            for column in command.id_column.columns:
+                essential_data.pop(column)
+            
             business_embedding = BusinessEmbeddings(
-                id_column_name=essential_data.pop(command.id_column),
+                id=id,
                 embeddings=embedding,
                 metadata=essential_data,
             )

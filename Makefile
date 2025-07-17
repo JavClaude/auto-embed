@@ -5,33 +5,24 @@ SHELL := /bin/bash
 DIR:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 
 .DEFAULT_GOAL := help
-
+PYENV_VERSION = 3.12.0
 
 .PHONY: help
 help: ## provides cli help for this makefile (default) 📖
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage: make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-##@ Poetry and project setup targets ⚙️
-.PHONY: install-project
-install-project: ## Install the project core dependencies
-	poetry install
-
 .PHONY: install-project-dev
 install-project-dev: ## Install the project dev dependencies
 	poetry install --with dev
 
-.PHONY: install-project-exploration
-install-project-exploration: ## Install the project exploration dependencies
-	poetry install --with exploration
-
 ##@ Development targets ✨
 .PHONY: run-lint
 run-lint: ## Run the linting
-	poetry run ruff check .
+	poetry run ruff check autoembed
 
 .PHONY: run-lint-fix
 run-lint-fix: ## Run the linting and fix the issues
-	poetry run ruff check . --fix
+	poetry run ruff check autoembed --fix
 
 .PHONY: run-tests
 run-tests: ## Run the tests
@@ -40,21 +31,3 @@ run-tests: ## Run the tests
 .PHONY: run-tests-coverage
 run-tests-coverage: ## Run the tests and generate the coverage report
 	poetry run pytest --cov=autoembed
-
-##@ Recommendations cli targets ✨🧠
-.PHONY: run-train-classified-embedding-model-cli 
-run-train-classified-embedding-model-cli: ## Run the train classified embedding model cli 🧠
-	autoembed-cli train --yaml_path example-auto-embeded.yaml
-
-.PHONY: run-predict-model-cli
-run-predict-model-cli: ## Run the predict model cli
-	autoembed-cli predict --yaml_path example-auto-embeded.yaml
-
-.PHONY: run-what-is-my-classified-recommendation-cli
-run-what-is-my-classified-recommendation-cli: ## Run the what is my classified recommendation cli params: classified_ref
-	autoembed-cli what-is-my-recommendation --id $(id)
-
-##@ Recommendations api targets ✨🧠
-.PHONY: run-classified-recommendations-api
-run-classified-recommendations-api: ## Run the classified recommendations api
-	uvicorn autoembed.src.api.api:app --reload

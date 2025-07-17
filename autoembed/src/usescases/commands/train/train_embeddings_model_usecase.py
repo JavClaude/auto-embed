@@ -36,7 +36,7 @@ class TrainEmbeddingModelUseCase:
 
         training_data = self.data_repository.get_training_data(command.training_data.path)
 
-        if command.light_mode:
+        if command.modeling.light_mode:
             self.logger.info("✅ Sampling training data for light mode")
             if len(training_data) > command.modeling.light_mode_sample_size:
                 training_data = training_data.sample(n=command.modeling.light_mode_sample_size)
@@ -70,7 +70,7 @@ class TrainEmbeddingModelUseCase:
             batch_size=command.modeling.batch_size,
         )
 
-        model_id = f"{command.model_name}-{datetime.now().strftime('%Y-%m-%d')}-{uuid.uuid4()}"
+        model_id = f"{command.model_name}-{datetime.datetime.now().strftime('%Y-%m-%d')}-{uuid.uuid4()}"
 
         self.logger.info(f"✅ Saving classified embeddings model with id: {model_id}")
         

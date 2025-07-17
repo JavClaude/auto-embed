@@ -7,13 +7,13 @@ import numpy as np
 
 @dataclass
 class BusinessEmbeddings:
-    def __init__(self, id_column_name: str, embeddings: np.ndarray, metadata: Dict[str, Any]):
-        self.id_column_name = id_column_name
+    def __init__(self, id: str, embeddings: np.ndarray, metadata: Dict[str, Any]):
+        self.id = id
         self.embeddings = embeddings
         self.metadata = metadata
 
     def __str__(self) -> str:
-        return f"Embedding(id={self.id_column_name}, embeddings={self.embeddings}, metadata={self.metadata})"
+        return f"Embedding(id={self.id}, embeddings={self.embeddings}, metadata={self.metadata})"
 
     def get_metadata(self) -> Dict[str, Any]:
         return {

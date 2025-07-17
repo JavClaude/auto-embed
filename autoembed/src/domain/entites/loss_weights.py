@@ -1,4 +1,3 @@
-from typing import Dict
 from dataclasses import dataclass
 
 
@@ -10,6 +9,3 @@ class LossWeight:
     @classmethod
     def from_dict(cls, name: str, weight: float) -> "LossWeight":
         return cls(name, weight)
-
-
-class LossWeights:

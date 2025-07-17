@@ -1,12 +1,14 @@
-from typing import Literal
+from enum import Enum
 from logging import Logger
 
 import yaml
-import fire
+import typer
 from kink import di
 
 from autoembed.src.domain.interfaces.embeddings_repository_interface import EmbeddingsRepositoryInterface
 from autoembed.src.infrastructure.embeddings.embedding_chromadb_adapter import EmbeddingsChromaDbAdapter
+from autoembed.src.usescases.commands.visualize.generate_interactive_visualization_command import GenerateInteractiveVisualizationCommand
+from autoembed.src.usescases.commands.visualize.generate_interactive_visualization_command_usecase import GenerateInteractiveVisualizationCommandUsecase
 from autoembed.src.yaml.auto_embed_yaml_schema import AutoEmbedByYamlFileSchema
 from autoembed.src.usescases.commands.prediction.predict_for_model_release_command import PredictForModelReleaseCommand
 from autoembed.src.usescases.commands.prediction.predict_for_model_release_usecase import PredictForModelReleaseUsecase
@@ -14,25 +16,27 @@ from autoembed.src.usescases.commands.train.train_embedding_model_command import
 from autoembed.src.usescases.commands.train.train_embeddings_model_usecase import TrainEmbeddingModelUseCase
 
 
-def autoembed(mode: Literal["train", "predict", "serve", "visualize"], yaml_path: str):
-    """CLI principale pour autoembed."""
-    
-    # Récupération du logger depuis DI
+class AutoEmbedMode(str, Enum):
+    TRAIN = "train"
+    PREDICT = "predict"
+    SERVE = "serve"
+    VISUALIZE = "visualize"
+
+def autoembed(mode: AutoEmbedMode, yaml_path: str):
+        
     logger = di[Logger]
-    
-    # Lecture et validation du fichier YAML de configuration
+
     with open(yaml_path, "r") as f:
         yaml_as_dict = yaml.load(f, Loader=yaml.FullLoader)
 
     auto_embed_yaml_schema = AutoEmbedByYamlFileSchema.from_yaml_as_dict(yaml_as_dict)
     logger.info(f"Executing command: {mode} with parameters: {auto_embed_yaml_schema.to_json()}")
     
-    # Configuration du repository d'embeddings
     di[EmbeddingsRepositoryInterface] = EmbeddingsChromaDbAdapter(
         vector_collection_name=auto_embed_yaml_schema.vector_store.vector_collection_name
     )
 
-    if mode == "train":
+    if mode == AutoEmbedMode.TRAIN:
         if auto_embed_yaml_schema.data.training is None:
             raise ValueError(f"Training data is required for mode: {mode}")
 
@@ -46,7 +50,7 @@ def autoembed(mode: Literal["train", "predict", "serve", "visualize"], yaml_path
         usecase = TrainEmbeddingModelUseCase()
         usecase.execute(command)
 
-    elif mode == "predict":
+    elif mode == AutoEmbedMode.PREDICT:
         if auto_embed_yaml_schema.data.prediction is None:
             raise ValueError(f"Prediction data is required for mode: {mode}")
 
@@ -60,14 +64,21 @@ def autoembed(mode: Literal["train", "predict", "serve", "visualize"], yaml_path
         usecase = PredictForModelReleaseUsecase()
         usecase.execute(command)
         
-    elif mode == "serve":
+    elif mode == AutoEmbedMode.SERVE:
         logger.warning("Serve mode not implemented yet")
         pass
         
-    elif mode == "visualize":
-        logger.warning("Visualize mode not implemented yet")
-        pass
+    elif mode == AutoEmbedMode.VISUALIZE:
+        logger.info(f"Generating interactive visualization for {auto_embed_yaml_schema.visualisation.n_samples} samples")
+        
+        command = GenerateInteractiveVisualizationCommand(
+            n_samples=auto_embed_yaml_schema.visualisation.n_samples,
+            visualisation_columns=auto_embed_yaml_schema.visualisation.visualisation_columns,
+        )
+
+        usecase = GenerateInteractiveVisualizationCommandUsecase()
+        usecase.execute(command)
 
 
 def main():
-    fire.Fire(autoembed)
+    typer.run(autoembed)

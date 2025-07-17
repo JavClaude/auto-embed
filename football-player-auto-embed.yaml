@@ -1,0 +1,82 @@
+model_name: latest
+
+id_column: [full_name, birth_date]
+
+vector_store:
+  vector_collection_name: football_player_embeddings
+  metadata_columns:
+    - full_name
+    - age
+    - nationality
+    - positions
+    - preferred_foot
+    - international_reputation
+    - weak_foot
+    - skill_moves
+    - body_type
+    - release_clause_euro
+    - national_team
+    - national_rating
+    - national_team_position
+
+data:
+  training:
+    type: csv
+    path: data/football_players/fifa_players.csv
+  prediction:
+    type: csv
+    path: data/football_players/fifa_players.csv
+
+modeling:
+  light_mode: false
+  light_mode_sample_size: 15000
+  bottle_neck_size: 32
+  epochs: 10
+  batch_size: 32
+  hidden_layer_sizes: [256, 128, 64]
+  modeling_columns:
+    categorical_columns:
+      - nationality
+      - positions
+      - preferred_foot
+      - body_type
+      - national_team
+      - national_team_position
+
+    numerical_columns:
+      - age
+      - height_cm
+      - weight_kgs
+      - international_reputation
+      - weak_foot
+      - skill_moves
+      - overall_rating
+      - potential
+      - value_euro
+      - wage_euro
+      - release_clause_euro
+      - national_rating
+      - national_jersey_number
+      - crossing
+      - finishing
+      - heading_accuracy
+      - short_passing
+      - volleys
+      - dribbling
+      - curve
+      - freekick_accuracy
+
+visualisation:
+  n_samples: 15000
+  visualisation_columns:
+    hover_data_columns_name:
+      - full_name
+      - age
+      - nationality
+      - positions
+      - preferred_foot
+      - international_reputation
+      - weak_foot
+      - skill_moves
+      - body_type
+    color_data_column_name: nationality

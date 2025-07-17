@@ -30,7 +30,7 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
         self.logger.info(f"Getting embeddings for {id_column_name}")
 
         return BusinessEmbeddings(
-            id_column_name=id_column_name,
+            id=id_column_name,
             embeddings=self.collection.get(ids=[id_column_name], include=["embeddings"])["embeddings"][0],
         )
 
@@ -40,9 +40,9 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
         return [id_column_name for id_column_name in most_similar_ids if id_column_name != id_column_name]
 
     def update_embeddings(self, embeddings: BusinessEmbeddings) -> None:
-        self.logger.info(f"Updating embeddings for {embeddings.id_column_name}")
+        self.logger.info(f"Updating embeddings for {embeddings.id}")
         self.collection.upsert(
-            ids=[embeddings.id_column_name],
+            ids=[embeddings.id],
             metadatas=[embeddings.get_metadata()],
             embeddings=[embeddings.embeddings],
         )
@@ -54,7 +54,7 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
         for i in tqdm.tqdm(range(0, len(embeddings_batch), self.max_batch_size), desc="Updating embeddings ⌛"):
             embeddings_to_upsert = embeddings_batch.embeddings[i : i + self.max_batch_size]
 
-            ids_to_upsert = [embedding.id_column_name for embedding in embeddings_to_upsert]
+            ids_to_upsert = [embedding.id for embedding in embeddings_to_upsert]
             embedding_to_upsert = [embedding.embeddings for embedding in embeddings_to_upsert]
             metadata_to_upsert = [embedding.get_metadata() for embedding in embeddings_to_upsert]
 
@@ -68,7 +68,7 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
         self.logger.info(f"Getting batch of {len(ids)} embeddings")
         return [
             BusinessEmbeddings(
-                id_column_name=id,
+                id=id,
                 embeddings=self.collection.get(ids=[id])["embeddings"][0],
             )
             for id in ids
@@ -76,6 +76,7 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
 
     def get_all_embeddings(self) -> BatchOfEmbeddings:
         existing_embeddings = self.collection.count()
+ 
         batch_retrieval_size = 5000
         
         embeddings_batch = BatchOfEmbeddings()
@@ -94,9 +95,9 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
             try:
                 for position, id in enumerate(batch["ids"]):
                     embedding = BusinessEmbeddings(
-                        id_column_name=id,
+                        id=id,
                         embeddings=batch["embeddings"][position],
-                        **batch["metadatas"][position],
+                        metadata=batch["metadatas"][position],
                     )
 
                     embeddings_batch.add_embeddings(embedding)
