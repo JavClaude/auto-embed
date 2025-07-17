@@ -1,5 +1,5 @@
 [project]
-name = "recommendations"
+name = "autoembed"
 version = "0.1.0"
 description = ""
 authors = [
@@ -17,7 +17,8 @@ dependencies = [
     "fire (>=0.7.0,<0.8.0)",
     "tqdm (>=4.67.1,<5.0.0)",
     "fastapi (>=0.115.13,<0.116.0)",
-    "uvicorn (>=0.34.3,<0.35.0)"
+    "uvicorn (>=0.34.3,<0.35.0)",
+    "pyyaml (>=6.0.2,<7.0.0)"
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -36,11 +37,8 @@ scikit-learn = "^1.7.0"
 plotly = "^6.2.0"
 
 [tool.poetry.scripts]
-train_recommendation_model = "recommendations.src.cli.train_classified_embedding_model_cli:main"
-generate_embedding_viz = "recommendations.src.cli.generate_interactive_visualization_cli:main"
-predict_recommendation_model = "recommendations.src.cli.predict_for_model_release_cli:main"
-what_is_my_recommendation = "recommendations.src.cli.what_is_my_classified_recommendation_cli:main"
-start_recommendation_api = "recommendations.src.api.api:main"
+
+autoembed-cli = "autoembed.src.cli.autoembed.autoembed_cli:main"
 
 [tool.black]
 line-length = 200

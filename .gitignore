@@ -13,6 +13,8 @@ __pycache__/
 venv/
 .venv/
 
+*.html
+
 # data
 data/
 

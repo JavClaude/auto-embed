@@ -1,0 +1,84 @@
+model_name: latest
+
+id_column: classified_ref
+
+vector_store:
+  vector_collection_name: classified_embeddings
+  metadata_columns: 
+    - vehicle_make
+    - vehicle_model
+    - vehicle_commercial_name
+    - vehicle_version
+    - vehicle_energy
+    - vehicle_category
+
+data:
+  training:
+    type: csv
+    path: data/training/classified_mars_juin_2025.csv
+  prediction:
+    type: csv
+    path: data/prediction/classified_online_23_06.csv
+
+modeling:
+  light_mode: false
+  light_mode_sample_size: 15000
+  bottle_neck_size: 96
+  epochs: 5
+  batch_size: 256
+  hidden_layer_sizes: [512, 256, 128]
+  modeling_columns:
+    categorical_columns:
+      - customer_type 
+      - vehicle_seats 
+      - zip_code 
+      - vehicle_category 
+      - vehicle_make 
+      - vehicle_model 
+      - vehicle_version 
+      - vehicle_gearbox 
+      - vehicle_energy 
+      - vehicle_origin 
+      - vehicle_external_color 
+      - vehicle_internal_color 
+      - vehicle_four_wheel_drive 
+      - vehicle_pollution_norm 
+      - vehicle_condition 
+      - vehicle_motorization 
+      - vehicle_commercial_name 
+
+    numerical_columns:
+      - vehicle_mileage
+      - vehicle_year
+      - vehicle_doors
+      - vehicle_trunk_volume
+      - vehicle_refined_quotation
+      - vehicle_power_din
+      - vehicle_rated_horse_power
+      - vehicle_max_power
+      - vehicle_consumption
+      - vehicle_co2
+      - constructor_warranty_duration
+      - price
+      - vehicle_weight
+      - vehicle_cubic
+      - vehicle_length
+      - vehicle_height
+      - vehicle_width
+      - initial_price
+      - vehicle_price_new
+      - vehicle_price
+      - vehicle_year
+
+visualisation:
+  n_samples: 30000
+  visualisation_columns:
+    hover_data_columns_name:
+      - vehicle_make
+      - vehicle_model
+      - vehicle_commercial_name
+      - vehicle_version
+      - vehicle_energy
+      - vehicle_price
+      - vehicle_year
+    color_data_column_name: vehicle_category

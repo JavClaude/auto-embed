@@ -39,22 +39,22 @@ run-tests: ## Run the tests
 
 .PHONY: run-tests-coverage
 run-tests-coverage: ## Run the tests and generate the coverage report
-	poetry run pytest --cov=recommendations
+	poetry run pytest --cov=autoembed
 
 ##@ Recommendations cli targets ✨🧠
 .PHONY: run-train-classified-embedding-model-cli 
 run-train-classified-embedding-model-cli: ## Run the train classified embedding model cli 🧠
-	train_recommendation_model --online_date 2025-06-24 --bottle_neck_size 64 --hidden_layer_sizes [512,256,128] --epochs 3 --batch_size 64
+	autoembed-cli train --yaml_path example-auto-embeded.yaml
 
 .PHONY: run-predict-model-cli
 run-predict-model-cli: ## Run the predict model cli
-	predict_recommendation_model
+	autoembed-cli predict --yaml_path example-auto-embeded.yaml
 
 .PHONY: run-what-is-my-classified-recommendation-cli
 run-what-is-my-classified-recommendation-cli: ## Run the what is my classified recommendation cli params: classified_ref
-	what_is_my_recommendation --classified_ref $(classified_ref)
+	autoembed-cli what-is-my-recommendation --id $(id)
 
 ##@ Recommendations api targets ✨🧠
 .PHONY: run-classified-recommendations-api
 run-classified-recommendations-api: ## Run the classified recommendations api
-	uvicorn recommendations.src.api.api:app --reload
+	uvicorn autoembed.src.api.api:app --reload
