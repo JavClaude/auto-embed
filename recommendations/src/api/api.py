@@ -32,13 +32,5 @@ def update_user_embedding(user_id: str, classified_ref: str, classified_event_ty
     update_users_embedding_usecase.execute(user_id, classified_ref, classified_event_type)
 
 
-@app.get("/api/v1/users/{user_id}/recommendations")
-def get_user_recommendations(user_id: str):
-    # Create usecase
-    return {
-        "user_id": user_id,
-        "recommendations": recommendations,
-    }
-
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8000)

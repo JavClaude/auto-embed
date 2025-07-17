@@ -41,6 +41,7 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         preprocessor_data = {
             "numerical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in preprocessor.numerical_columns.columns.items()],
             "categorical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in preprocessor.categorical_columns.columns.items()],
+            "categorical_features_loss_weights": preprocessor.categorical_features_loss_weights,
         }
 
         with open(f"{base_path}/preprocessor.json", "w") as f:

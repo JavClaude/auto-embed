@@ -44,7 +44,7 @@ run-tests-coverage: ## Run the tests and generate the coverage report
 ##@ Recommendations cli targets ✨🧠
 .PHONY: run-train-classified-embedding-model-cli 
 run-train-classified-embedding-model-cli: ## Run the train classified embedding model cli 🧠
-	train_recommendation_model --online_date 2025-06-24 --bottle_neck_size 64 --hidden_layer_sizes [128,64,32] --epochs 3 --batch_size 256
+	train_recommendation_model --online_date 2025-06-24 --bottle_neck_size 64 --hidden_layer_sizes [512,256,128] --epochs 3 --batch_size 64
 
 .PHONY: run-predict-model-cli
 run-predict-model-cli: ## Run the predict model cli

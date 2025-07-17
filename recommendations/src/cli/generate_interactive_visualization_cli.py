@@ -1,0 +1,14 @@
+import fire
+
+from recommendations.src.usescases.commands.visualize.generate_interactive_visualization_command import GenerateInteractiveVisualizationCommand
+from recommendations.src.usescases.commands.visualize.generate_interactive_visualization_command_usecase import GenerateInteractiveVisualizationCommandUsecase
+
+
+def generate_interactive_visualization():
+    generate_interactive_visualization_usecase = GenerateInteractiveVisualizationCommandUsecase()
+    generate_interactive_visualization_command = GenerateInteractiveVisualizationCommand()
+    generate_interactive_visualization_usecase.execute(generate_interactive_visualization_command)
+
+
+def main():
+    fire.Fire(generate_interactive_visualization)

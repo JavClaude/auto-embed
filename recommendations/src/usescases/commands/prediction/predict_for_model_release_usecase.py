@@ -1,11 +1,13 @@
 from logging import Logger
 
+import tqdm
 from kink import inject
 
 from recommendations.src.domain.interfaces.classified_embedding_model_interface import (
     ClassifiedEmbeddingModelInterface,
 )
 from recommendations.src.domain.interfaces.classified_embeddings_repository_interface import (
+    ClassifiedEmbeddings,
     ClassifiedEmbeddingsBatch,
     ClassifiedEmbeddingsRepositoryInterface,
 )
@@ -46,10 +48,24 @@ class PredictForModelReleaseUsecase:
         preprocessed_classified_data = dataset_preprocessor.preprocess(prediction_data)
         classified_embeddings = model.embed(preprocessed_classified_data)
 
-        classified_embeddings_batch = ClassifiedEmbeddingsBatch(
-            classified_refs=prediction_data["classified_ref"].tolist(),
-            classified_embeddings=classified_embeddings,
-        )
+        essential_classified_data = prediction_data[["classified_ref","vehicle_make", "vehicle_model", "vehicle_commercial_name", "vehicle_version", "vehicle_energy", "price", "vehicle_year"]].to_numpy()
 
-        self.logger.info(f"Updating {len(classified_embeddings_batch.classified_refs)} classified embeddings")
+        classified_embeddings_batch = ClassifiedEmbeddingsBatch()
+
+        for classified_data, classified_embedding in tqdm.tqdm(zip(essential_classified_data, classified_embeddings), desc="Generating classified embeddings"):   
+            classified_embedding = ClassifiedEmbeddings(
+                classified_ref=classified_data[0],
+                vehicle_make=classified_data[1],
+                vehicle_model=classified_data[2],
+                vehicle_commercial_name=classified_data[3],
+                vehicle_version=classified_data[4],
+                vehicle_energy=classified_data[5],
+                vehicle_price=classified_data[6],
+                vehicle_year=classified_data[7],
+                classified_embeddings=classified_embedding,
+            )
+
+            classified_embeddings_batch.add_classified_embeddings(classified_embedding)
+
+        self.logger.info(f"Updating {len(classified_embeddings_batch)} classified embeddings")
         self.classified_embeddings_repository.update_batch(classified_embeddings_batch)

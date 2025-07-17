@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import (
     Input,
@@ -12,8 +13,7 @@ from tensorflow.keras.layers import (
     Flatten,
     Concatenate,
     Layer,
-    LayerNormalization,
-    Multiply
+    LayerNormalization
 )
 
 from recommendations.src.domain.dataset_preprocessor import (
@@ -60,7 +60,7 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
         epochs: int,
         batch_size: int,
     ) -> None:
-        self.autoencoder.fit(x, y, epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True)
+        self.autoencoder.fit(x, y, epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True, callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)])
 
     def embed(self, x: pd.DataFrame) -> np.ndarray:
         return self.encoder.predict(x)
@@ -91,7 +91,7 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
                 loss_weights[f"{feature_name}_outputs"] = 1.0
             losses[f"{feature_name}_outputs"] = "sparse_categorical_crossentropy"
 
-        autoencoder.compile(optimizer=Adam(learning_rate=0.005), loss=losses, loss_weights=loss_weights)
+        autoencoder.compile(optimizer=Adam(learning_rate=0.001), loss=losses, loss_weights=loss_weights)
 
         return autoencoder, encoder
 
@@ -133,7 +133,7 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
 
         for index, hidden_layer_dim in enumerate(hidden_layer_dim):
             all_features_layer = LayerNormalization()(all_features_layer)
-            all_features_layer = Dense(units=hidden_layer_dim, activation="relu", name=f"hidden_layer_{index}")(all_features_layer)
+            all_features_layer = Dense(units=hidden_layer_dim, activation="leaky_relu", name=f"hidden_layer_{index}")(all_features_layer)
             all_features_layer = LayerNormalization()(all_features_layer)
             all_features_layer = Dropout(0.2)(all_features_layer)
 
@@ -149,7 +149,7 @@ class KerasAutoencoder(ClassifiedEmbeddingModelInterface):
         bottleneck_layer_dim: int,
         hidden_layer_dim: List[int],
     ) -> None:
-        first_decoding_layer = Dense(units=bottleneck_layer_dim, activation="relu", name="first_decoding_layer")(bottleneck_layer)
+        first_decoding_layer = Dense(units=bottleneck_layer_dim, activation="leaky_relu", name="first_decoding_layer")(bottleneck_layer)
 
         for index, hidden_layer_dim in enumerate(reversed(hidden_layer_dim)):
             first_decoding_layer = Dense(

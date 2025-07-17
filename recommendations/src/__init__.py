@@ -29,7 +29,6 @@ from recommendations.src.infrastructure.model.local_model_registry_adapter impor
     LocalModelRegistryAdapter,
 )
 from recommendations.src.usescases.queries.what_is_my_classified_recommendations_usecases import WhatIsMyClassifiedRecommendationsUsecases
-from recommendations.src.usescases.users.update_users_embedding_usecase import UpdateUsersEmbeddingUsecase
 
 # Infrastructure layer
 di[Logger] = logger
@@ -39,3 +38,5 @@ di[ModelRegistryInterface] = LocalModelRegistryAdapter(path="models")
 di[ClassifiedEmbeddingsRepositoryInterface] = ClassifiedEmbeddingsChromaDbAdapter()
 di[UserEmbeddingRepositoryInterface] = UserEmbeddingRepositoryChromaDbAdapter()
 di[ClassifiedEmbeddingModelInterface] = KerasAutoencoder
+
+di[WhatIsMyClassifiedRecommendationsUsecases] = WhatIsMyClassifiedRecommendationsUsecases()

@@ -16,7 +16,7 @@ class CategoricalColumn(Column):
     name: str
     vocabulary: Dict[str, int]
     value_used_to_fill_na: str = "UNK"
-    embedding_dim: int = 64
+    embedding_dim: int = 128
 
     def __post_init__(self):
         self.vocabulary = {
@@ -46,9 +46,9 @@ class CategoricalColumn(Column):
     @staticmethod
     def infer_embedding_dim(vocabulary: Dict[str, int]) -> int:
         if len(vocabulary) < 30:
-            return 20
+            return 32
         else:
-            return 64
+            return 128
 
     def transform(self, series: pd.Series) -> pd.Series:
         series.fillna(self.value_used_to_fill_na, inplace=True)

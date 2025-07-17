@@ -1,4 +1,8 @@
-# Classified Embeddings
+# auto-embed
+
+<div align="center">
+<img src="logo/auto-embed-logo.png" width="256 "/>
+</div>
 
 Système de recommandations basé sur des embeddings classifiés utilisant un autoencodeur pour apprendre des représentations vectorielles de données catégorielles et numériques.
 

@@ -12,9 +12,9 @@ from recommendations.src.usescases.commands.train.train_classified_embeddings_mo
 
 def train_classified_embedding_model(
     online_date: str = "2025-06-19",
-    bottle_neck_size: int = 64,
-    hidden_layer_sizes: List[int] = [128, 64, 32],
-    epochs: int = 3,
+    bottle_neck_size: int = 96,
+    hidden_layer_sizes: List[int] = [512, 256, 128],
+    epochs: int = 5,
     batch_size: int = 256,
     light_mode: bool = False,
 ):

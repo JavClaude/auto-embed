@@ -20,11 +20,6 @@ dependencies = [
     "uvicorn (>=0.34.3,<0.35.0)"
 ]
 
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.12.0"
 black = "^25.1.0"
@@ -36,10 +31,13 @@ chromadb = "^1.0.13"
 [tool.poetry.group.explo.dependencies]
 jupyter = "^1.1.1"
 
+[tool.poetry.group.visualization.dependencies]
+scikit-learn = "^1.7.0"
+plotly = "^6.2.0"
 
-# scripts
 [tool.poetry.scripts]
 train_recommendation_model = "recommendations.src.cli.train_classified_embedding_model_cli:main"
+generate_embedding_viz = "recommendations.src.cli.generate_interactive_visualization_cli:main"
 predict_recommendation_model = "recommendations.src.cli.predict_for_model_release_cli:main"
 what_is_my_recommendation = "recommendations.src.cli.what_is_my_classified_recommendation_cli:main"
 start_recommendation_api = "recommendations.src.api.api:main"
@@ -47,3 +45,7 @@ start_recommendation_api = "recommendations.src.api.api:main"
 [tool.black]
 line-length = 200
 exclude = '''__init__.py'''
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
