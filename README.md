@@ -43,12 +43,51 @@ make install-project-dev
 ```yaml
 model_name: my_model
 id_column: entity_id
+
 vector_store:
   vector_collection_name: my_embeddings
+  metadata_columns: 
+    - category
+    - brand
+    - type
+
 data:
   training:
     type: csv
-    path: data/training.csv
+    path: data/training/my_data.csv
+  prediction:
+    type: csv
+    path: data/prediction/new_data.csv
+
+modeling:
+  light_mode: false
+  light_mode_sample_size: 15000
+  bottle_neck_size: 96
+  epochs: 5
+  batch_size: 256
+  hidden_layer_sizes: [512, 256, 128]
+  
+  modeling_columns:
+    categorical_columns:
+      - category
+      - brand
+      - type
+      - status
+    
+    numerical_columns:
+      - price
+      - age
+      - rating
+      - quantity
+
+visualisation:
+  n_samples: 30000
+  visualisation_columns:
+    hover_data_columns_name:
+      - brand
+      - category
+      - price
+    color_data_column_name: category
 ```
 
 2. **Train your model**:
