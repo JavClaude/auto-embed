@@ -1,88 +1,149 @@
-# auto-embed
+# 🔮 auto-embed
 
 <div align="center">
-<img src="logo/auto-embed-logo.png" width="256 "/>
+<img src="logo/auto-embed-logo.png" width="256"/>
+
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Poetry](https://img.shields.io/badge/Poetry-dependency%20management-blue.svg)](https://python-poetry.org/)
+
+*Effortlessly transform your business entities into powerful vector embeddings* ✨
+
 </div>
 
-Système de recommandations basé sur des embeddings classifiés utilisant un autoencodeur pour apprendre des représentations vectorielles de données catégorielles et numériques.
+## 🚀 What is auto-embed?
 
-## 🎯 Vue d'ensemble
+**auto-embed** is a lightweight, production-ready library that transforms your business entities into mathematical representations. Enable similarity searches, vector operations, and AI-powered insights with just a few lines of code.
 
-Ce projet implémente un système de recommandations qui :
-- Entraîne un autoencodeur sur des données classifiées (catégorielles + numériques)
-- Génère des embeddings vectoriels pour chaque élément classifié
-- Stocke les embeddings dans ChromaDB pour une recherche de similarité efficace
-- Fournit des recommandations basées sur la similarité vectorielle
-- Suit les embeddings des utilisateurs basés sur leurs interactions
+## ✨ Features
 
-## 🚀 Installation
+- 🎯 **Simple Configuration** - YAML-based setup for quick deployment
+- 🏠 **Local-First** - ChromaDB integration for vector storage
+- 📊 **CSV Support** - Direct filesystem operations
+- 🧠 **Deep Learning** - Keras-based autoencoder models
+- 🔍 **Similarity Search** - Find related entities instantly
+- 📈 **Visualization** - Interactive embeddings exploration
+- 🛠️ **CLI & API** - Multiple interfaces for different workflows
+
+## 🏃‍♂️ Quick Start
+
+### Installation
 
 ```bash
-# Installation des dépendances core
+# Install dependencies
 make install-project
+
+# For development
+make install-project-dev
 ```
 
-## 📋 Utilisation
+### Basic Usage
 
-### Entraînement du modèle
+1. **Configure your pipeline** (`config.yaml`):
+```yaml
+model_name: my_model
+id_column: entity_id
+
+vector_store:
+  vector_collection_name: my_embeddings
+  metadata_columns: 
+    - category
+    - brand
+    - type
+
+data:
+  training:
+    type: csv
+    path: data/training/my_data.csv
+  prediction:
+    type: csv
+    path: data/prediction/new_data.csv
+
+modeling:
+  light_mode: false
+  light_mode_sample_size: 15000
+  bottle_neck_size: 96
+  epochs: 5
+  batch_size: 256
+  hidden_layer_sizes: [512, 256, 128]
+  
+  modeling_columns:
+    categorical_columns:
+      - category
+      - brand
+      - type
+      - status
+    
+    numerical_columns:
+      - price
+      - age
+      - rating
+      - quantity
+
+visualisation:
+  n_samples: 30000
+  visualisation_columns:
+    hover_data_columns_name:
+      - brand
+      - category
+      - price
+    color_data_column_name: category
+```
+
+2. **Train your model**:
 ```bash
-# Entraîner un modèle d'embeddings classifiés
-train_recommendation_model --online_date 2025-06-23 --bottle_neck_size 32 --hidden_layer_sizes [128,64,32] --epochs 10 --batch_size 256
+autoembed-cli train --yaml_path config.yaml
 ```
 
-### Génération des embeddings
+3. **Generate predictions**:
 ```bash
-# Générer les embeddings pour un modèle entraîné
-predict_recommendation_model --model_id <model_id> --date_to_predict 2025-06-23
+autoembed-cli predict --yaml_path config.yaml
 ```
 
-### Obtenir des recommandations
+4. **Find similar entities**:
 ```bash
-# Obtenir des recommandations pour un élément classifié
-what_is_my_recommendation --classified_ref <classified_ref>
+autoembed-cli what-is-my-recommendation --id "entity_123"
 ```
 
-### API REST
-```bash
-# Démarrer l'API de recommandations
-start_recommendation_api
-```
+## 🛠️ Available Commands
+
+| Command | Description | Emoji |
+|---------|-------------|-------|
+| `make run-train-classified-embedding-model-cli` | Train embedding model | 🧠 |
+| `make run-predict-model-cli` | Generate predictions | 🔮 |
+| `make run-what-is-my-classified-recommendation-cli` | Find recommendations | 💡 |
+| `make run-tests` | Run test suite | 🧪 |
+| `make run-lint` | Code quality checks | ✅ |
 
 ## 🏗️ Architecture
 
-Le projet suit une architecture hexagonale avec :
-- **Domain** : Entités métier et interfaces
-- **Infrastructure** : Adaptateurs pour ChromaDB, Keras, stockage local
-- **Use Cases** : Logique métier d'entraînement, prédiction et recommandations
-- **API/CLI** : Points d'entrée pour l'interaction
-
-## 🧠 Modèle
-
-L'autoencodeur utilise :
-- Couche d'embedding pour les variables catégorielles
-- Couches denses pour l'encodage/décodage
-- Couche goulot d'étranglement (bottleneck) pour la représentation compressée
-- Fonction de perte multi-objectifs (MSE pour numérique, crossentropy pour catégoriel)
-
-## 🛠️ Développement
-
-```bash
-# Linting
-make run-lint
-
-# Tests
-make run-tests
-
-# Tests avec couverture
-make run-tests-coverage
+```
+📦 auto-embed
+├── 🎯 CLI Interface     # Command-line tools
+├── 🌐 API Server       # FastAPI endpoints  
+├── 🧠 Domain Logic     # Business rules
+├── 🏗️ Infrastructure   # ChromaDB, Keras adapters
+└── ⚙️ Use Cases        # Training, prediction, queries
 ```
 
-## 📊 Stack technique
+## 🤝 Contributing
 
-- **ML/DL** : TensorFlow/Keras, NumPy, Pandas
-- **Vector DB** : ChromaDB
-- **API** : FastAPI, Uvicorn
-- **CLI** : Fire
-- **DI** : Kink
-- **Dev Tools** : Poetry, Ruff, Black, Pytest
+We welcome contributions! Please feel free to:
+
+- 🐛 Report bugs
+- 💡 Suggest features
+- 📝 Improve documentation
+- 🔧 Submit pull requests
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+Built with ❤️ using:
+- [TensorFlow/Keras](https://tensorflow.org) for deep learning
+- [ChromaDB](https://chromadb.com) for vector storage
+- [FastAPI](https://fastapi.tiangolo.com) for API endpoints
+- [Poetry](https://python-poetry.org) for dependency management
 

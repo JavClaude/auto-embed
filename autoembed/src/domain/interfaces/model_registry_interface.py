@@ -1,0 +1,24 @@
+from abc import ABC, abstractmethod
+
+from autoembed.src.domain.dataset_preprocessor import DatasetPreprocessor
+from autoembed.src.domain.interfaces.embedding_model_interface import (
+    EmbeddingModelInterface,
+)
+
+
+class ModelRegistryInterface(ABC):
+    @abstractmethod
+    def save_preprocessor(self, preprocessor: DatasetPreprocessor, model_id: str) -> None:
+        pass
+
+    @abstractmethod
+    def load_preprocessor(self, model_id: str | None = None) -> DatasetPreprocessor:
+        pass
+
+    @abstractmethod
+    def save_model(self, model: EmbeddingModelInterface, model_id: str) -> None:
+        pass
+
+    @abstractmethod
+    def load_model(self, model: EmbeddingModelInterface, model_id: str | None = None) -> EmbeddingModelInterface:
+        pass
