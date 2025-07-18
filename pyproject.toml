@@ -1,9 +1,9 @@
 [project]
 name = "autoembed"
 version = "0.1.0"
-description = ""
+description = "Effortlessly transform your business entities into powerful vector embeddings ✨"
 authors = [
-    {name = "None"}
+    {name = "Pierre-Arthur Claudé"}
 ]
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
@@ -28,9 +28,6 @@ pytest = "^8.4.1"
 flake8 = "^7.2.0"
 sqlite-vec = "^0.1.6"
 chromadb = "^1.0.13"
-
-[tool.poetry.group.explo.dependencies]
-jupyter = "^1.1.1"
 
 [tool.poetry.group.visualization.dependencies]
 scikit-learn = "^1.7.0"

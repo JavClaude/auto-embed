@@ -29,6 +29,8 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
     with open(yaml_path, "r") as f:
         yaml_as_dict = yaml.load(f, Loader=yaml.FullLoader)
 
+    # Build bus middleware from yaml
+
     auto_embed_yaml_schema = AutoEmbedByYamlFileSchema.from_yaml_as_dict(yaml_as_dict)
     logger.info(f"Executing command: {mode} with parameters: {auto_embed_yaml_schema.to_json()}")
     
