@@ -46,6 +46,7 @@ class ModelingColumns:
 @dataclass
 class Modeling:
     def __init__(self, **kwargs):
+        self.model_version = kwargs.get("model_version")
         self.light_mode = kwargs.get("light_mode")
         self.light_mode_sample_size = kwargs.get("light_mode_sample_size")
         self.bottle_neck_size = kwargs.get("bottle_neck_size")
@@ -71,7 +72,7 @@ class Visualisation:
 @dataclass
 class AutoEmbedByYamlFileSchema:
     def __init__(self, **kwargs):
-        self.model_name = kwargs.get("model_name")
+        self.project_name = kwargs.get("project_name")
         self.id_column = IdColumn(kwargs.get("id_column"))
         self.vector_store = VectorStore(**kwargs.get("vector_store"))
         self.data = Data(**kwargs.get("data"))

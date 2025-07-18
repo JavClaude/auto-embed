@@ -38,11 +38,11 @@ class PredictForModelReleaseUsecase:
         self.embedding_model = embedding_model
 
     def execute(self, command: PredictForModelReleaseCommand) -> None:
-        self.logger.info(f"Predicting for model release {command.model_name} for {command.prediction_data.path}")
+        self.logger.info(f"Predicting for model release {command.project_name} {command.model_version} for {command.prediction_data.path}")
 
         prediction_data = self.data_repository.get_prediction_data(command.prediction_data.path)
-        dataset_preprocessor = self.model_registry.load_preprocessor(command.model_name)
-        model = self.model_registry.load_model(self.embedding_model, command.model_name)
+        dataset_preprocessor = self.model_registry.load_preprocessor(command.project_name, command.model_version)
+        model = self.model_registry.load_model(self.embedding_model, command.project_name, command.model_version)
 
         preprocessed_data = dataset_preprocessor.preprocess(prediction_data)
         embeddings = model.embed(preprocessed_data)
@@ -52,15 +52,16 @@ class PredictForModelReleaseUsecase:
         else:
             essential_data = prediction_data[command.id_column.columns[0] + command.vector_store.metadata_columns.columns].to_dict(orient="records")
 
-
         embeddings_batch = BatchOfEmbeddings()
 
-        for essential_data, embedding in tqdm.tqdm(zip(essential_data, embeddings), desc="Generating embeddings"):   
-            id = "-".join([str(essential_data[column]) for column in command.id_column.columns])
+        for essential_data, embedding in tqdm.tqdm(zip(essential_data, embeddings), desc="Generating embeddings"):
             
-            # remove id columns from metadata data
-            for column in command.id_column.columns:
-                essential_data.pop(column)
+            the_id_column_needs_to_be_built_from_multiple_columns = len(command.id_column.columns) > 1
+            if the_id_column_needs_to_be_built_from_multiple_columns:
+                id = "-".join([str(essential_data[column]) for column in command.id_column.columns])
+            else:
+                id = essential_data[command.id_column.columns[0]]
+                essential_data.pop(command.id_column.columns[0])
             
             business_embedding = BusinessEmbeddings(
                 id=id,

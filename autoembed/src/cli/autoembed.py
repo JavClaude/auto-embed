@@ -29,6 +29,8 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
     with open(yaml_path, "r") as f:
         yaml_as_dict = yaml.load(f, Loader=yaml.FullLoader)
 
+    # Build bus middleware from yaml
+
     auto_embed_yaml_schema = AutoEmbedByYamlFileSchema.from_yaml_as_dict(yaml_as_dict)
     logger.info(f"Executing command: {mode} with parameters: {auto_embed_yaml_schema.to_json()}")
     
@@ -41,8 +43,7 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
             raise ValueError(f"Training data is required for mode: {mode}")
 
         command = TrainEmbeddingModelCommand(
-            model_name=auto_embed_yaml_schema.model_name,
-            id_column=auto_embed_yaml_schema.id_column,
+            project_name=auto_embed_yaml_schema.project_name,
             vector_store=auto_embed_yaml_schema.vector_store,
             training_data=auto_embed_yaml_schema.data.training,
             modeling=auto_embed_yaml_schema.modeling,
@@ -55,11 +56,12 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
             raise ValueError(f"Prediction data is required for mode: {mode}")
 
         command = PredictForModelReleaseCommand(
-            auto_embed_yaml_schema.model_name,
-            auto_embed_yaml_schema.id_column,
-            auto_embed_yaml_schema.vector_store,
-            auto_embed_yaml_schema.data.prediction,
-            auto_embed_yaml_schema.modeling,
+            project_name=auto_embed_yaml_schema.project_name,
+            model_version=auto_embed_yaml_schema.modeling.model_version,
+            id_column=auto_embed_yaml_schema.id_column,
+            vector_store=auto_embed_yaml_schema.vector_store,
+            prediction_data=auto_embed_yaml_schema.data.prediction,
+            modeling=auto_embed_yaml_schema.modeling,
         )
         usecase = PredictForModelReleaseUsecase()
         usecase.execute(command)

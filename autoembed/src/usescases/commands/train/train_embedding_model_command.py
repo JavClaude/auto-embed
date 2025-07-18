@@ -5,8 +5,7 @@ from autoembed.src.yaml.auto_embed_yaml_schema import Modeling, TrainingData, Ve
 
 @dataclass
 class TrainEmbeddingModelCommand:
-    model_name: str
-    id_column: str
+    project_name: str
     vector_store: VectorStore
     training_data: TrainingData
     modeling: Modeling

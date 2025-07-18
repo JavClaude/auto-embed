@@ -1,4 +1,4 @@
-model_name: latest
+project_name: football_player_auto_embed
 
 id_column: [full_name, birth_date]
 
@@ -28,6 +28,7 @@ data:
     path: data/football_players/fifa_players.csv
 
 modeling:
+  model_version: latest
   light_mode: false
   light_mode_sample_size: 15000
   bottle_neck_size: 32
