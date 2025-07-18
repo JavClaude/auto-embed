@@ -25,6 +25,13 @@
 - 📈 **Visualization** - Interactive embeddings exploration
 - 🛠️ **CLI & API** - Multiple interfaces for different workflows
 
+## TODO
+
+- Add support for textual column with little transformer
+- Add support for monitoring tools: `tensorboard`, `mlflow`
+- Add other support for business data in datawarehouse or operational databases: `Athena`, `Postgres`, ...
+- Add support other vector database: `pgvector`, `milvius`, `s3-vectors`
+
 ## 🏃‍♂️ Quick Start
 
 ### Installation
@@ -102,48 +109,9 @@ autoembed-cli predict --yaml_path config.yaml
 
 4. **Find similar entities**:
 ```bash
-autoembed-cli what-is-my-recommendation --id "entity_123"
+autoembed-cli visualize --yaml_path config.yaml
 ```
-
-## 🛠️ Available Commands
-
-| Command | Description | Emoji |
-|---------|-------------|-------|
-| `make run-train-classified-embedding-model-cli` | Train embedding model | 🧠 |
-| `make run-predict-model-cli` | Generate predictions | 🔮 |
-| `make run-what-is-my-classified-recommendation-cli` | Find recommendations | 💡 |
-| `make run-tests` | Run test suite | 🧪 |
-| `make run-lint` | Code quality checks | ✅ |
-
-## 🏗️ Architecture
-
-```
-📦 auto-embed
-├── 🎯 CLI Interface     # Command-line tools
-├── 🌐 API Server       # FastAPI endpoints  
-├── 🧠 Domain Logic     # Business rules
-├── 🏗️ Infrastructure   # ChromaDB, Keras adapters
-└── ⚙️ Use Cases        # Training, prediction, queries
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please feel free to:
-
-- 🐛 Report bugs
-- 💡 Suggest features
-- 📝 Improve documentation
-- 🔧 Submit pull requests
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-Built with ❤️ using:
-- [TensorFlow/Keras](https://tensorflow.org) for deep learning
-- [ChromaDB](https://chromadb.com) for vector storage
-- [FastAPI](https://fastapi.tiangolo.com) for API endpoints
-- [Poetry](https://python-poetry.org) for dependency management
-

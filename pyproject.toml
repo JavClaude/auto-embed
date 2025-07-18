@@ -38,7 +38,7 @@ plotly = "^6.2.0"
 
 [tool.poetry.scripts]
 
-autoembed-cli = "autoembed.src.cli.autoembed.autoembed_cli:main"
+autoembed-cli = "autoembed.src.cli.autoembed:main"
 
 [tool.black]
 line-length = 200
