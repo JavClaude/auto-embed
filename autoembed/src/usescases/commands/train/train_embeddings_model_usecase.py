@@ -69,10 +69,5 @@ class TrainEmbeddingModelUseCase:
             epochs=command.modeling.epochs,
             batch_size=command.modeling.batch_size,
         )
-
-        model_id = f"{command.project_name}-{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M')}-{uuid.uuid4()}"
-
-        self.logger.info(f"✅ Saving classified embeddings model with id: {model_id}")
         
-        self.embedding_model_registry.save_preprocessor(dataset_preprocessor, model_id)
-        self.embedding_model_registry.save_model(model, model_id)
+        self.embedding_model_registry.save_model_and_preprocessor(model, dataset_preprocessor, command.project_name)

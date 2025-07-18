@@ -8,15 +8,11 @@ from autoembed.src.domain.interfaces.embedding_model_interface import (
 
 class ModelRegistryInterface(ABC):
     @abstractmethod
-    def save_preprocessor(self, preprocessor: DatasetPreprocessor, model_registry_name: str, model_id: str) -> None:
+    def save_model_and_preprocessor(self, model: EmbeddingModelInterface, preprocessor: DatasetPreprocessor, model_registry_name: str) -> None:
         pass
 
     @abstractmethod
     def load_preprocessor(self, model_registry_name: str, model_id: str | None = None) -> DatasetPreprocessor:
-        pass
-
-    @abstractmethod
-    def save_model(self, model: EmbeddingModelInterface, model_registry_name: str, model_id: str) -> None:
         pass
 
     @abstractmethod

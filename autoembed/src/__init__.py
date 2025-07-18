@@ -30,5 +30,5 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 di[Logger] = logger
 
 di[DataRepositoryInterface] = DataRepositoryLocalCSVAdapter()
-di[ModelRegistryInterface] = LocalModelRegistryAdapter(path="models")
+di[ModelRegistryInterface] = LocalModelRegistryAdapter(base_path="models")
 di[EmbeddingModelInterface] = KerasAutoencoder

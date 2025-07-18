@@ -38,7 +38,7 @@ class PredictForModelReleaseUsecase:
         self.embedding_model = embedding_model
 
     def execute(self, command: PredictForModelReleaseCommand) -> None:
-        self.logger.info(f"Predicting for model release {command.model_name} for {command.prediction_data.path}")
+        self.logger.info(f"Predicting for model release {command.project_name} {command.model_version} for {command.prediction_data.path}")
 
         prediction_data = self.data_repository.get_prediction_data(command.prediction_data.path)
         dataset_preprocessor = self.model_registry.load_preprocessor(command.project_name, command.model_version)
@@ -51,7 +51,6 @@ class PredictForModelReleaseUsecase:
             essential_data = prediction_data[command.id_column.columns + command.vector_store.metadata_columns.columns].to_dict(orient="records")
         else:
             essential_data = prediction_data[command.id_column.columns[0] + command.vector_store.metadata_columns.columns].to_dict(orient="records")
-
 
         embeddings_batch = BatchOfEmbeddings()
 
