@@ -5,7 +5,8 @@ from autoembed.src.yaml.auto_embed_yaml_schema import IdColumn, Modeling, Predic
 
 @dataclass
 class PredictForModelReleaseCommand:
-    model_name: str
+    project_name: str
+    model_version: str
     id_column: IdColumn
     vector_store: VectorStore
     prediction_data: PredictionData

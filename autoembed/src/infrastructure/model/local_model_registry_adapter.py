@@ -29,10 +29,10 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
             self.logger.info(f"Creating directory {path}")
             os.makedirs(path)
 
-    def save_preprocessor(self, preprocessor: DatasetPreprocessor, model_id: str) -> None:
+    def save_preprocessor(self, preprocessor: DatasetPreprocessor, model_registry_name: str, model_id: str) -> None:
         self.logger.info(f"Saving preprocessor for model {model_id}")
 
-        base_path = f"{self.path}/{model_id}"
+        base_path = f"{self.path}/{model_registry_name}/{model_id}"
 
         if not os.path.exists(base_path):
             self.logger.info(f"Creating directory {base_path}")
@@ -47,13 +47,13 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         with open(f"{base_path}/preprocessor.json", "w") as f:
             json.dump(preprocessor_data, f)
 
-    def load_preprocessor(self, model_id: str) -> DatasetPreprocessor:
+    def load_preprocessor(self, model_registry_name: str, model_id: str) -> DatasetPreprocessor:
         if model_id == "latest":
             model_id = self._get_latest_model_id()
 
         self.logger.info(f"Loading exported columns for model {model_id}")
 
-        with open(f"{self.path}/{model_id}/preprocessor.json", "r") as f:
+        with open(f"{self.path}/{model_registry_name}/{model_id}/preprocessor.json", "r") as f:
             preprocessor_data = json.load(f)
 
         numerical_columns = NumericalColumns.from_numerical_columns([NumericalColumn(**list(column.values())[0]) for column in preprocessor_data["numerical_columns"]])
@@ -61,16 +61,16 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
 
         return DatasetPreprocessor.from_columns(numerical_columns, categorical_columns)
 
-    def save_model(self, model: EmbeddingModelInterface, model_id: str) -> None:
+    def save_model(self, model: EmbeddingModelInterface, model_registry_name: str, model_id: str) -> None:
         self.logger.info(f"Saving model {model_id}")
-        model.save(f"{self.path}/{model_id}")
+        model.save(f"{self.path}/{model_registry_name}/{model_id}")
 
     @inject()
-    def load_model(self, model: EmbeddingModelInterface, model_id: str | None = None) -> EmbeddingModelInterface:
+    def load_model(self, model: EmbeddingModelInterface, model_registry_name: str, model_id: str | None = None) -> EmbeddingModelInterface:
         if model_id == "latest":
             model_id = self._get_latest_model_id()
 
-        return model.load(f"{self.path}/{model_id}")
+        return model.load(f"{self.path}/{model_registry_name}/{model_id}")
 
     def _get_latest_model_id(self) -> str:
         model_dirs = [d for d in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, d))]

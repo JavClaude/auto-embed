@@ -70,7 +70,7 @@ class TrainEmbeddingModelUseCase:
             batch_size=command.modeling.batch_size,
         )
 
-        model_id = f"{command.model_name}-{datetime.datetime.now().strftime('%Y-%m-%d')}-{uuid.uuid4()}"
+        model_id = f"{command.project_name}-{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M')}-{uuid.uuid4()}"
 
         self.logger.info(f"✅ Saving classified embeddings model with id: {model_id}")
         

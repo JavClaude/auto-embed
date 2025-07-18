@@ -41,8 +41,7 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
             raise ValueError(f"Training data is required for mode: {mode}")
 
         command = TrainEmbeddingModelCommand(
-            model_name=auto_embed_yaml_schema.model_name,
-            id_column=auto_embed_yaml_schema.id_column,
+            project_name=auto_embed_yaml_schema.project_name,
             vector_store=auto_embed_yaml_schema.vector_store,
             training_data=auto_embed_yaml_schema.data.training,
             modeling=auto_embed_yaml_schema.modeling,
@@ -55,11 +54,11 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
             raise ValueError(f"Prediction data is required for mode: {mode}")
 
         command = PredictForModelReleaseCommand(
-            auto_embed_yaml_schema.model_name,
-            auto_embed_yaml_schema.id_column,
-            auto_embed_yaml_schema.vector_store,
-            auto_embed_yaml_schema.data.prediction,
-            auto_embed_yaml_schema.modeling,
+            project_name=auto_embed_yaml_schema.project_name,
+            model_version=auto_embed_yaml_schema.modeling.model_version,
+            vector_store=auto_embed_yaml_schema.vector_store,
+            prediction_data=auto_embed_yaml_schema.data.prediction,
+            modeling=auto_embed_yaml_schema.modeling,
         )
         usecase = PredictForModelReleaseUsecase()
         usecase.execute(command)
