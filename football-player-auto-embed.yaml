@@ -32,7 +32,7 @@ modeling:
   light_mode: false
   light_mode_sample_size: 15000
   bottle_neck_size: 32
-  epochs: 10
+  epochs: 15
   batch_size: 32
   hidden_layer_sizes: [256, 128, 64]
   modeling_columns:

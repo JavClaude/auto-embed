@@ -15,10 +15,10 @@ vector_store:
 data:
   training:
     type: csv
-    path: data/training/classified_mars_juin_2025.csv
+    path: data/classified/training/classified_mars_juin_2025.csv
   prediction:
     type: csv
-    path: data/prediction/classified_online_23_06.csv
+    path: data/classified/prediction/classified_online_23_06.csv
 
 modeling:
   light_mode: false
