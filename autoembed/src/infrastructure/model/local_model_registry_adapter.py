@@ -28,10 +28,6 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         self.path = base_path
         self.logger = logger
 
-        if not os.path.exists(base_path):
-            self.logger.info(f"Creating directory {base_path}")
-            os.makedirs(base_path)
-
     def save_model_and_preprocessor(self, model: EmbeddingModelInterface, preprocessor: DatasetPreprocessor, model_registry_name: str) -> None:
         model_id = self._generate_model_id()
         self.logger.info(f"Saving model {model_id}")

@@ -1,5 +1,5 @@
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Any, List, Literal
 
 
@@ -39,8 +39,8 @@ class Data:
 
 @dataclass
 class ModelingColumns:
-    categorical_columns: List[str]
-    numerical_columns: List[str]
+    categorical_columns: List[str | None] = field(default_factory=list)
+    numerical_columns: List[str | None] = field(default_factory=list)
 
 
 @dataclass

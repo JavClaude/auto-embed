@@ -43,7 +43,7 @@ class GenerateInteractiveVisualizationCommandUsecase:
         })
 
         viz_dataframe["id"] = [embedding.id for embedding in sampled_embeddings.embeddings]
-        
+
         for column in command.visualisation_columns.hover_data_columns_name:
             viz_dataframe[column] = [embedding.metadata[column] for embedding in sampled_embeddings.embeddings]
 

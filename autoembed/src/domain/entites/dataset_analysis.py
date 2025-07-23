@@ -9,8 +9,8 @@ from autoembed.src.domain.entites.columns import (
 
 @dataclass
 class DatasetAnalysis:
-    numerical_columns: NumericalColumns
-    categorical_columns: CategoricalColumns
+    numerical_columns: NumericalColumns | None 
+    categorical_columns: CategoricalColumns | None
     categorical_features_loss_weights: None | Dict[str, float] = None
 
     def get_analysis(self) -> Dict[str, float]:

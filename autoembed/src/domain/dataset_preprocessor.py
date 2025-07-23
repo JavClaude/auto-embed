@@ -16,8 +16,8 @@ NUMERICAL_OUTPUTS_KEY = "numerical_outputs"
 class DatasetPreprocessor:
     def __init__(
         self,
-        numerical_columns_names: List[str],
-        categorical_columns_names: List[str],
+        numerical_columns_names: List[str | None] = [],
+        categorical_columns_names: List[str | None ] = [],
         numerical_columns: NumericalColumns | None = None,
         categorical_columns: CategoricalColumns | None = None,
         categorical_features_loss_weights: Dict[str, float] | None = None,

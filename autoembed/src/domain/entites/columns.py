@@ -61,7 +61,10 @@ class CategoricalColumns:
     columns: Dict[str, CategoricalColumn]
 
     @classmethod
-    def from_dataframe(cls, dataframe: pd.DataFrame, columns: List[str]) -> "CategoricalColumns":
+    def from_dataframe(cls, dataframe: pd.DataFrame, columns: List[str] | None = None) -> "CategoricalColumns":
+        if not columns:
+            return cls(columns={})
+        
         return cls(columns={column: CategoricalColumn.from_series(dataframe[column]) for column in columns})
 
     @classmethod
@@ -98,7 +101,10 @@ class NumericalColumns:
     numerical_dimensions: int
 
     @classmethod
-    def from_dataframe(cls, dataframe: pd.DataFrame, columns: List[str]) -> "NumericalColumns":
+    def from_dataframe(cls, dataframe: pd.DataFrame, columns: List[str] | None = None) -> "NumericalColumns":
+        if columns is None:
+            return cls(columns={}, numerical_dimensions=0)
+
         return cls(
             columns={column: NumericalColumn.from_series(dataframe[column]) for column in columns},
             numerical_dimensions=len(columns),
