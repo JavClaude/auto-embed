@@ -16,7 +16,7 @@ def test_build_categorical_column_from_series():
     assert categorical_column.embedding_dim == 32
 
 
-def test_transform_categorical_column():
+def test_transform_categorical_column_with_na_and_unknown_valuuuues():
     # Given
     categorical_column = CategoricalColumn.from_series(pd.Series(["Paris", "Paris ", "   Lyon", "Marseille", "Marseille", pd.NA], name="city"))
     series_to_transform = pd.Series(
