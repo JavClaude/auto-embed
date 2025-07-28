@@ -42,6 +42,7 @@ class KerasAutoencoder(EmbeddingModelInterface):
         hidden_layer_dim: List[int],
     ) -> "KerasAutoencoder":
         autoencoder, encoder = cls._build_model(dataset_analysis, bottleneck_layer_dim, hidden_layer_dim)
+        print(autoencoder.__dict__)
         return cls(autoencoder=autoencoder, encoder=encoder)
 
     def fit(
@@ -119,7 +120,6 @@ class KerasAutoencoder(EmbeddingModelInterface):
             embeddings.append(embedding_layer)
 
         all_features_layer = Concatenate()(embeddings)
-        print(all_features_layer.shape)
 
         for index, hidden_layer_dim in enumerate(hidden_layer_dim):
             all_features_layer = LayerNormalization()(all_features_layer)
@@ -162,7 +162,7 @@ class KerasAutoencoder(EmbeddingModelInterface):
             feature,
         ) in dataset_analysis.categorical_columns.columns.items():
             categorical_output_layer = Dense(
-                units=len(feature.vocabulary) + 1,
+                units=len(feature.vocabulary),
                 name=f"{feature_name}_outputs",
                 activation="softmax",
             )(first_decoding_layer)

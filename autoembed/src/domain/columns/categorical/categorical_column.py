@@ -4,19 +4,25 @@ from typing import Dict
 import pandas as pd
 from autoembed.src.domain.columns.categorical.base_categorical_column import BaseCategoricalColumn
 
+UNK_VALUE = "unk"
+
 
 @dataclasses.dataclass
 class CategoricalColumn(BaseCategoricalColumn):
     name: str
     vocabulary: Dict[str, int]
-    value_used_to_fill_na: str = "unk"
+    value_used_to_fill_na: str = UNK_VALUE
     embedding_dim: int = 128
 
     @classmethod
     def from_series(cls, series: pd.Series) -> "CategoricalColumn":
-        series.fillna(cls.value_used_to_fill_na, inplace=True)
+        series.fillna(UNK_VALUE, inplace=True)
         series = series.astype(str).apply(lambda x: x.lower().strip())
         vocabulary = {value: index for index, value in enumerate(series.unique())}
+
+        if UNK_VALUE not in vocabulary:
+            vocabulary[UNK_VALUE] = len(vocabulary)
+
         return cls(
             name=series.name,
             vocabulary=vocabulary,
@@ -31,8 +37,8 @@ class CategoricalColumn(BaseCategoricalColumn):
             return 128
 
     def transform(self, series: pd.Series) -> pd.Series:
-        series.fillna(self.value_used_to_fill_na, inplace=True)
+        series.fillna(UNK_VALUE, inplace=True)
         series = series.astype(str).apply(lambda x: x.lower().strip())
         series = series.map(self.vocabulary, na_action="ignore")
-        series.fillna(self.vocabulary[self.value_used_to_fill_na], inplace=True)
+        series = series.fillna(self.vocabulary[UNK_VALUE])
         return series
