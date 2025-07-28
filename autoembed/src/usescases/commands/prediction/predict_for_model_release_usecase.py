@@ -3,7 +3,8 @@ from logging import Logger
 import tqdm
 from kink import inject
 
-from autoembed.src.domain.models.embeddings import BatchOfEmbeddings, BusinessEmbeddings
+from autoembed.src.domain.models.business_embeddings import BusinessEmbeddings
+from autoembed.src.domain.models.batch_business_embeddings import BatchBusinessEmbeddings
 from autoembed.src.domain.interfaces.embedding_model_interface import (
     EmbeddingModelInterface,
 )
@@ -52,7 +53,7 @@ class PredictForModelReleaseUsecase:
         else:
             essential_data = prediction_data[command.id_column.columns[0] + command.vector_store.metadata_columns.columns].to_dict(orient="records")
 
-        embeddings_batch = BatchOfEmbeddings()
+        embeddings_batch = BatchBusinessEmbeddings()
 
         for essential_data, embedding in tqdm.tqdm(zip(essential_data, embeddings), desc="Generating embeddings"):
 

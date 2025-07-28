@@ -58,8 +58,10 @@ class TrainEmbeddingModelUseCase:
             command.modeling.hidden_layer_sizes,
         )
 
-        self.logger.info(f"🔍 Numerical columns: {len(dataset_analysis.numerical_columns.columns)}")
-        self.logger.info(f"🔍 Categorical columns: {len(dataset_analysis.categorical_columns.columns)}")
+        if dataset_analysis.numerical_columns is not None:
+            self.logger.info(f"🔍 Numerical columns: {len(dataset_analysis.numerical_columns.columns)}")
+        if dataset_analysis.categorical_columns is not None:
+            self.logger.info(f"🔍 Categorical columns: {len(dataset_analysis.categorical_columns.columns)}")
 
         model.fit(
             preprocessed_data,

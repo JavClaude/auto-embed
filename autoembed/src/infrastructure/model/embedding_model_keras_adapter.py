@@ -73,15 +73,17 @@ class KerasAutoencoder(EmbeddingModelInterface):
         losses = {}
         loss_weights = {}
 
-        losses[NUMERICAL_OUTPUTS_KEY] = "mse"
-        loss_weights[NUMERICAL_OUTPUTS_KEY] = 1.0
+        if dataset_analysis.numerical_columns is not None:
+            losses[NUMERICAL_OUTPUTS_KEY] = "mse"
+            loss_weights[NUMERICAL_OUTPUTS_KEY] = 1.0
 
-        for feature_name in dataset_analysis.categorical_columns.columns:
-            if dataset_analysis.categorical_features_loss_weights is not None:
-                loss_weights[f"{feature_name}_outputs"] = dataset_analysis.categorical_features_loss_weights[feature_name]
-            else:
-                loss_weights[f"{feature_name}_outputs"] = 1.0
-            losses[f"{feature_name}_outputs"] = "sparse_categorical_crossentropy"
+        if dataset_analysis.categorical_columns is not None:
+            for feature_name in dataset_analysis.categorical_columns.columns.keys():
+                if dataset_analysis.categorical_features_loss_weights is not None:
+                    loss_weights[f"{feature_name}_outputs"] = dataset_analysis.categorical_features_loss_weights[feature_name]
+                else:
+                    loss_weights[f"{feature_name}_outputs"] = 1.0
+                losses[f"{feature_name}_outputs"] = "sparse_categorical_crossentropy"
 
         autoencoder.compile(optimizer=Adam(learning_rate=0.001), loss=losses, loss_weights=loss_weights)
 
@@ -97,27 +99,30 @@ class KerasAutoencoder(EmbeddingModelInterface):
         inputs = {}
         embeddings = []
 
-        numerical_inputs_size = len(dataset_analysis.numerical_columns.columns)
-        numerical_inputs_layer = Input(shape=(numerical_inputs_size,), name=NUMERICAL_INPUTS_FEATURES_KEY)
+        if dataset_analysis.numerical_columns is not None:
+            numerical_inputs_size = len(dataset_analysis.numerical_columns.columns)
+            numerical_inputs_layer = Input(shape=(numerical_inputs_size,), name=NUMERICAL_INPUTS_FEATURES_KEY)
 
-        inputs[NUMERICAL_INPUTS_FEATURES_KEY] = numerical_inputs_layer
-        embeddings.append(numerical_inputs_layer)
+            inputs[NUMERICAL_INPUTS_FEATURES_KEY] = numerical_inputs_layer
+            embeddings.append(numerical_inputs_layer)
 
-        for (
-            feature_name,
-            feature,
-        ) in dataset_analysis.categorical_columns.columns.items():
-            categorical_input_layer = Input(shape=(1,), name=feature_name)
-            inputs[feature_name] = categorical_input_layer
+        if dataset_analysis.categorical_columns is not None:
 
-            embedding_layer = Embedding(
-                input_dim=len(feature.vocabulary),
-                output_dim=feature.embedding_dim,
-                name=f"{feature_name}_embedding",
-            )(categorical_input_layer)
+            for (
+                feature_name,
+                feature,
+            ) in dataset_analysis.categorical_columns.columns.items():
+                categorical_input_layer = Input(shape=(1,), name=feature_name)
+                inputs[feature_name] = categorical_input_layer
 
-            embedding_layer = Flatten(name=f"{feature_name}_embedding_flatten")(embedding_layer)
-            embeddings.append(embedding_layer)
+                embedding_layer = Embedding(
+                    input_dim=len(feature.vocabulary),
+                    output_dim=feature.embedding_dim,
+                    name=f"{feature_name}_embedding",
+                )(categorical_input_layer)
+
+                embedding_layer = Flatten(name=f"{feature_name}_embedding_flatten")(embedding_layer)
+                embeddings.append(embedding_layer)
 
         all_features_layer = Concatenate()(embeddings)
 
@@ -151,22 +156,24 @@ class KerasAutoencoder(EmbeddingModelInterface):
 
         outputs = {}
 
-        numerical_outputs = Dense(
-            units=len(dataset_analysis.numerical_columns.columns),
-            name="numerical_outputs",
-        )(first_decoding_layer)
-        outputs[NUMERICAL_OUTPUTS_KEY] = numerical_outputs
-
-        for (
-            feature_name,
-            feature,
-        ) in dataset_analysis.categorical_columns.columns.items():
-            categorical_output_layer = Dense(
-                units=len(feature.vocabulary),
-                name=f"{feature_name}_outputs",
-                activation="softmax",
+        if dataset_analysis.numerical_columns is not None:
+            numerical_outputs = Dense(
+                units=len(dataset_analysis.numerical_columns.columns),
+                name="numerical_outputs",
             )(first_decoding_layer)
-            outputs[f"{feature_name}_outputs"] = categorical_output_layer
+            outputs[NUMERICAL_OUTPUTS_KEY] = numerical_outputs
+
+        if dataset_analysis.categorical_columns is not None:
+            for (
+                feature_name,
+                feature,
+            ) in dataset_analysis.categorical_columns.columns.items():
+                categorical_output_layer = Dense(
+                    units=len(feature.vocabulary),
+                    name=f"{feature_name}_outputs",
+                    activation="softmax",
+                )(first_decoding_layer)
+                outputs[f"{feature_name}_outputs"] = categorical_output_layer
 
         return outputs
 
