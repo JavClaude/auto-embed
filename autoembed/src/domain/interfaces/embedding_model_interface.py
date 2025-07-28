@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 
-from autoembed.src.domain.entites.dataset_analysis import DatasetAnalysis
+from autoembed.src.domain.models.dataset_analysis import DatasetAnalysis
 
 
 class EmbeddingModelInterface(ABC):

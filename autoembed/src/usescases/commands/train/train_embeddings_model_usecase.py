@@ -1,6 +1,4 @@
-import datetime
 from logging import Logger
-import uuid
 
 from kink import inject
 
@@ -56,7 +54,7 @@ class TrainEmbeddingModelUseCase:
 
         model = KerasAutoencoder.from_dataset_analysis(
             dataset_analysis,
-            command.modeling.bottle_neck_size, 
+            command.modeling.bottle_neck_size,
             command.modeling.hidden_layer_sizes,
         )
 
@@ -69,5 +67,5 @@ class TrainEmbeddingModelUseCase:
             epochs=command.modeling.epochs,
             batch_size=command.modeling.batch_size,
         )
-        
+
         self.embedding_model_registry.save_model_and_preprocessor(model, dataset_preprocessor, command.project_name)

@@ -3,7 +3,7 @@ from logging import Logger
 import tqdm
 from kink import inject
 
-from autoembed.src.domain.entites.embeddings import BatchOfEmbeddings, BusinessEmbeddings
+from autoembed.src.domain.models.embeddings import BatchOfEmbeddings, BusinessEmbeddings
 from autoembed.src.domain.interfaces.embedding_model_interface import (
     EmbeddingModelInterface,
 )
@@ -55,14 +55,14 @@ class PredictForModelReleaseUsecase:
         embeddings_batch = BatchOfEmbeddings()
 
         for essential_data, embedding in tqdm.tqdm(zip(essential_data, embeddings), desc="Generating embeddings"):
-            
+
             the_id_column_needs_to_be_built_from_multiple_columns = len(command.id_column.columns) > 1
             if the_id_column_needs_to_be_built_from_multiple_columns:
                 id = "-".join([str(essential_data[column]) for column in command.id_column.columns])
             else:
                 id = essential_data[command.id_column.columns[0]]
                 essential_data.pop(command.id_column.columns[0])
-            
+
             business_embedding = BusinessEmbeddings(
                 id=id,
                 embeddings=embedding,

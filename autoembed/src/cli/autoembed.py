@@ -22,8 +22,9 @@ class AutoEmbedMode(str, Enum):
     SERVE = "serve"
     VISUALIZE = "visualize"
 
+
 def autoembed(mode: AutoEmbedMode, yaml_path: str):
-        
+
     logger = di[Logger]
 
     with open(yaml_path, "r") as f:
@@ -33,10 +34,8 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
 
     auto_embed_yaml_schema = AutoEmbedByYamlFileSchema.from_yaml_as_dict(yaml_as_dict)
     logger.info(f"Executing command: {mode} with parameters: {auto_embed_yaml_schema.to_json()}")
-    
-    di[EmbeddingsRepositoryInterface] = EmbeddingsChromaDbAdapter(
-        vector_collection_name=auto_embed_yaml_schema.vector_store.vector_collection_name
-    )
+
+    di[EmbeddingsRepositoryInterface] = EmbeddingsChromaDbAdapter(vector_collection_name=auto_embed_yaml_schema.vector_store.vector_collection_name)
 
     if mode == AutoEmbedMode.TRAIN:
         if auto_embed_yaml_schema.data.training is None:
@@ -65,14 +64,14 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
         )
         usecase = PredictForModelReleaseUsecase()
         usecase.execute(command)
-        
+
     elif mode == AutoEmbedMode.SERVE:
         logger.warning("Serve mode not implemented yet")
         pass
-        
+
     elif mode == AutoEmbedMode.VISUALIZE:
         logger.info(f"Generating interactive visualization for {auto_embed_yaml_schema.visualisation.n_samples} samples")
-        
+
         command = GenerateInteractiveVisualizationCommand(
             n_samples=auto_embed_yaml_schema.visualisation.n_samples,
             visualisation_columns=auto_embed_yaml_schema.visualisation.visualisation_columns,

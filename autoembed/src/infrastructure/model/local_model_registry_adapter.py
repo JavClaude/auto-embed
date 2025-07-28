@@ -7,18 +7,16 @@ from logging import Logger
 
 from kink import inject
 
+from autoembed.src.domain.columns.categorical.categorical_column import CategoricalColumn
+from autoembed.src.domain.columns.categorical.categorical_columns import CategoricalColumns
+from autoembed.src.domain.columns.numerical.numerical_column import NumericalColumn
+from autoembed.src.domain.columns.numerical.numerical_columns import NumericalColumns
 from autoembed.src.domain.dataset_preprocessor import DatasetPreprocessor
 from autoembed.src.domain.interfaces.embedding_model_interface import (
     EmbeddingModelInterface,
 )
 from autoembed.src.domain.interfaces.model_registry_interface import (
     ModelRegistryInterface,
-)
-from autoembed.src.domain.entites.columns import (
-    CategoricalColumn,
-    CategoricalColumns,
-    NumericalColumn,
-    NumericalColumns,
 )
 
 

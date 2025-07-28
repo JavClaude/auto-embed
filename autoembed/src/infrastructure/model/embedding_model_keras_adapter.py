@@ -5,16 +5,7 @@ import pandas as pd
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import (
-    Input,
-    Dense,
-    Dropout,
-    Embedding,
-    Flatten,
-    Concatenate,
-    Layer,
-    LayerNormalization
-)
+from tensorflow.keras.layers import Input, Dense, Dropout, Embedding, Flatten, Concatenate, Layer, LayerNormalization
 
 from autoembed.src.domain.dataset_preprocessor import (
     NUMERICAL_INPUTS_FEATURES_KEY,
@@ -23,7 +14,7 @@ from autoembed.src.domain.dataset_preprocessor import (
 from autoembed.src.domain.interfaces.embedding_model_interface import (
     EmbeddingModelInterface,
 )
-from autoembed.src.domain.entites.dataset_analysis import DatasetAnalysis
+from autoembed.src.domain.models.dataset_analysis import DatasetAnalysis
 
 
 class KerasAutoencoder(EmbeddingModelInterface):
@@ -60,7 +51,7 @@ class KerasAutoencoder(EmbeddingModelInterface):
         epochs: int,
         batch_size: int,
     ) -> None:
-        self.autoencoder.fit(x, y, epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True, callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)])
+        self.autoencoder.fit(x, y, epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True, callbacks=[EarlyStopping(monitor="val_loss", patience=2, restore_best_weights=True)])
 
     def embed(self, x: pd.DataFrame) -> np.ndarray:
         return self.encoder.predict(x)
@@ -122,7 +113,6 @@ class KerasAutoencoder(EmbeddingModelInterface):
                 input_dim=len(feature.vocabulary) + 1,
                 output_dim=feature.embedding_dim,
                 name=f"{feature_name}_embedding",
-                
             )(categorical_input_layer)
 
             embedding_layer = Flatten(name=f"{feature_name}_embedding_flatten")(embedding_layer)

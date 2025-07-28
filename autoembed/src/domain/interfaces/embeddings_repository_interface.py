@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from autoembed.src.domain.entites.embeddings import BusinessEmbeddings, BatchOfEmbeddings
+from autoembed.src.domain.models.batch_business_embeddings import BatchBusinessEmbeddings
+from autoembed.src.domain.models.business_embeddings import BusinessEmbeddings
 
 
 class EmbeddingsRepositoryInterface(ABC):
@@ -14,17 +15,17 @@ class EmbeddingsRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    def update_embeddings(self, embeddings: BusinessEmbeddings) -> None:
-        pass
-
-    @abstractmethod
-    def update_batch(self, embeddings_batch: BatchOfEmbeddings) -> None:
-        pass
-
-    @abstractmethod
     def get_embeddings_batch(self, ids: List[str]) -> List[BusinessEmbeddings]:
         pass
 
     @abstractmethod
-    def get_all_embeddings(self) -> BatchOfEmbeddings:
+    def get_all_embeddings(self) -> BatchBusinessEmbeddings:
+        pass
+
+    @abstractmethod
+    def update_embeddings(self, embeddings: BusinessEmbeddings) -> None:
+        pass
+
+    @abstractmethod
+    def update_batch(self, embeddings_batch: BatchBusinessEmbeddings) -> None:
         pass

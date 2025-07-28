@@ -7,6 +7,7 @@ from typing import Any, List, Literal
 class IdColumn:
     columns: List[str]
 
+
 @dataclass
 class MetadataColumns:
     columns: List[str]
@@ -14,7 +15,7 @@ class MetadataColumns:
 
 @dataclass
 class VectorStore:
-    def __init__(self, **kwargs):   
+    def __init__(self, **kwargs):
         self.vector_collection_name = kwargs.get("vector_collection_name")
         self.metadata_columns = MetadataColumns(kwargs.get("metadata_columns"))
 
@@ -29,6 +30,7 @@ class TrainingData:
 class PredictionData:
     type: Literal["csv", "parquet"]
     path: str
+
 
 @dataclass
 class Data:
@@ -64,7 +66,7 @@ class VisualisationColumns:
 
 @dataclass
 class Visualisation:
-    def __init__(self, **kwargs):   
+    def __init__(self, **kwargs):
         self.n_samples = kwargs.get("n_samples")
         self.visualisation_columns = VisualisationColumns(**kwargs.get("visualisation_columns"))
 
