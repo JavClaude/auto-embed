@@ -8,27 +8,31 @@ from autoembed.src.infrastructure.model.embedding_model_keras_adapter import Ker
 
 def test_when_build_model_from_dataset_analysis_then_should_build_model_with_correct_dimensions():
     # Given
-    numerical_income_column = NumericalColumn(name="income",value_used_to_fill_na=0, mean=0, std=1)
-    numerical_year_column = NumericalColumn(name="year",value_used_to_fill_na=0, mean=0, std=1)
+    numerical_income_column = NumericalColumn(name="income", value_used_to_fill_na=0, mean=0, std=1)
+    numerical_year_column = NumericalColumn(name="year", value_used_to_fill_na=0, mean=0, std=1)
 
     categorical_city_column = CategoricalColumn(
-        name="city", value_used_to_fill_na="unknown", vocabulary={
+        name="city",
+        value_used_to_fill_na="unknown",
+        vocabulary={
             "paris": 0,
             "lyon": 1,
             "marseille": 2,
             "toulouse": 3,
             "unknown": 4,
         },
-        embedding_dim=12
+        embedding_dim=12,
     )
     categorical_region_column = CategoricalColumn(
-        name="region", value_used_to_fill_na="unknown", vocabulary={
+        name="region",
+        value_used_to_fill_na="unknown",
+        vocabulary={
             "ile-de-france": 0,
             "auvergne-rhone-alpes": 1,
             "midi-pyrenees": 2,
             "unknown": 3,
         },
-        embedding_dim=12
+        embedding_dim=12,
     )
 
     dataset_analysis = DatasetAnalysis(
@@ -37,7 +41,7 @@ def test_when_build_model_from_dataset_analysis_then_should_build_model_with_cor
         categorical_features_loss_weights={
             "city": 1.0,
             "region": 1.0,
-        }
+        },
     )
 
     # When
@@ -50,4 +54,3 @@ def test_when_build_model_from_dataset_analysis_then_should_build_model_with_cor
 
     assert model.autoencoder.get_layer("region_embedding").input_dim == 4
     assert model.autoencoder.get_layer("region_embedding").output_dim == 12
-    
