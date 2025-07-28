@@ -111,7 +111,3 @@ autoembed-cli predict --yaml_path config.yaml
 ```bash
 autoembed-cli visualize --yaml_path config.yaml
 ```
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
