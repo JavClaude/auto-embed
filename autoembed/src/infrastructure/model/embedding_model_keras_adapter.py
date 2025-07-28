@@ -110,7 +110,7 @@ class KerasAutoencoder(EmbeddingModelInterface):
             inputs[feature_name] = categorical_input_layer
 
             embedding_layer = Embedding(
-                input_dim=len(feature.vocabulary) + 1,
+                input_dim=len(feature.vocabulary),
                 output_dim=feature.embedding_dim,
                 name=f"{feature_name}_embedding",
             )(categorical_input_layer)
