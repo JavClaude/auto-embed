@@ -19,7 +19,6 @@ SPECIAL_TOKENS = [CLS_TOKEN, SEP_TOKEN, "[PAD]", "[MASK]", "[BOS]", "[EOS]", "[U
 @dataclass
 class TransformedTextColumn:
     input_ids: np.ndarray
-    attention_mask: np.ndarray
 
 
 @dataclass
@@ -32,7 +31,7 @@ class TextColumn(BaseCategoricalColumn):
     word_embedding: int = 64
 
     @classmethod
-    def from_series(cls, series: pd.Series, max_length: int = 512, vocab_size: int = 10000, word_embedding: int = 64) -> "TextColumn":
+    def from_series(cls, series: pd.Series, max_length: int = 64, vocab_size: int = 10000, word_embedding: int = 64) -> "TextColumn":
         clean_series = cls._normalize_text_series(series)
 
         tokenizer = Tokenizer(BPE())
@@ -82,15 +81,15 @@ class TextColumn(BaseCategoricalColumn):
         encoded = self.tokenizer.encode_batch(clean_series.tolist())
 
         input_ids = np.array([enc.ids for enc in encoded])
-        attention_mask = np.array([enc.attention_mask for enc in encoded])
+        # attention_mask supprimé - mask_zero=True dans l'Embedding s'en charge
 
-        return TransformedTextColumn(input_ids=input_ids, attention_mask=attention_mask)
+        return TransformedTextColumn(input_ids=input_ids)
 
     def encode_single_text(self, text: str) -> TransformedTextColumn:
         cleaned_text = self._normalize_text(text)
         encoded = self.tokenizer.encode(cleaned_text)
 
-        return TransformedTextColumn(input_ids=np.array([encoded.ids]), attention_mask=np.array([encoded.attention_mask]))
+        return TransformedTextColumn(input_ids=np.array([encoded.ids]))
 
     def decode_tokens(self, token_ids: List[int]) -> str:
         return self.tokenizer.decode(token_ids, skip_special_tokens=True)

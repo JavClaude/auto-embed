@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import List, Tuple
 
 import numpy as np
@@ -5,8 +6,8 @@ import pandas as pd
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import Input, Dense, Dropout, Embedding, Flatten, Concatenate, Layer, LayerNormalization, GlobalAveragePooling1D, Reshape, RepeatVector
-from keras_hub.layers import TransformerEncoder, TransformerDecoder
+from tensorflow.keras.layers import Input, Dense, Dropout, Embedding, Flatten, Concatenate, Layer, LayerNormalization, GlobalAveragePooling1D, Reshape
+from keras_hub.layers import TransformerEncoder
 
 from autoembed.src.domain.dataset_preprocessor import (
     NUMERICAL_INPUTS_FEATURES_KEY,
@@ -54,7 +55,11 @@ class KerasAutoencoder(EmbeddingModelInterface):
         epochs: int,
         batch_size: int,
     ) -> None:
-        self.autoencoder.fit(x, y, epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True, callbacks=[EarlyStopping(monitor="val_loss", patience=2, restore_best_weights=True)])
+        
+
+        self.autoencoder.fit(
+            asdict(x), asdict(y), epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True, callbacks=[EarlyStopping(monitor="val_loss", patience=2, restore_best_weights=True)]
+        )
 
     def embed(self, x: pd.DataFrame) -> np.ndarray:
         return self.encoder.predict(x)
@@ -86,10 +91,6 @@ class KerasAutoencoder(EmbeddingModelInterface):
                 else:
                     loss_weights[f"{feature_name}_outputs"] = 1.0
                 losses[f"{feature_name}_outputs"] = "sparse_categorical_crossentropy"
-
-        if dataset_analysis.text_column is not None:
-            losses[f"{dataset_analysis.text_column.name}_outputs"] = "sparse_categorical_crossentropy"
-            loss_weights[f"{dataset_analysis.text_column.name}_outputs"] = 1.0
 
         autoencoder.compile(optimizer=Adam(learning_rate=0.001), loss=losses, loss_weights=loss_weights)
 
@@ -129,43 +130,36 @@ class KerasAutoencoder(EmbeddingModelInterface):
                 embedding_layer = Flatten(name=f"{feature_name}_embedding_flatten")(embedding_layer)
                 embeddings.append(embedding_layer)
 
-        # Amélioration pour le texte avec mini transformer encoder
         if dataset_analysis.text_column is not None:
             text_input_layer = Input(shape=(dataset_analysis.text_column.max_length,), name=dataset_analysis.text_column.name)
             inputs[dataset_analysis.text_column.name] = text_input_layer
 
-            # Embedding des tokens
             text_embedding = Embedding(
                 input_dim=dataset_analysis.text_column.vocab_size,
                 output_dim=dataset_analysis.text_column.word_embedding,
-                mask_zero=True,  # Important pour ignorer le padding
+                mask_zero=True,
                 name=f"{dataset_analysis.text_column.name}_token_embedding"
             )(text_input_layer)
 
-            # Mini Transformer Encoder pour encoder le texte
+            # TODO: Ajouter le nombre de layers en param
             transformer_encoder = TransformerEncoder(
-                num_heads=4,  # Augmenté pour de meilleures représentations
-                intermediate_dim=dataset_analysis.text_column.word_embedding * 2,  # FFN dimension
-                num_layers=2,
+                num_heads=4,
+                intermediate_dim=dataset_analysis.text_column.word_embedding * 2,
                 dropout=0.1,
                 activation="relu",
                 layer_norm_epsilon=1e-6,
                 name=f"{dataset_analysis.text_column.name}_transformer_encoder"
             )(text_embedding)
 
-            # Pooling pour obtenir une représentation fixe du texte
-            # Alternative au GlobalAveragePooling1D: utiliser CLS token ou mean pooling pondéré
             text_encoded = GlobalAveragePooling1D(name=f"{dataset_analysis.text_column.name}_pooling")(transformer_encoder)
             
             embeddings.append(text_encoded)
 
-        # Fusion de toutes les features
         if len(embeddings) > 1:
             all_features_layer = Concatenate(name="concatenate_all_features")(embeddings)
         else:
             all_features_layer = embeddings[0]
 
-        # Couches denses pour l'encodage
         for index, hidden_dim in enumerate(hidden_layer_dim):
             all_features_layer = LayerNormalization(name=f"encoder_layer_norm_{index}")(all_features_layer)
             all_features_layer = Dense(
@@ -192,7 +186,7 @@ class KerasAutoencoder(EmbeddingModelInterface):
         bottleneck_layer_dim: int,
         hidden_layer_dim: List[int],
     ) -> dict:
-        # Couches de décodage standard
+
         first_decoding_layer = Dense(
             units=bottleneck_layer_dim, 
             activation="leaky_relu", 
@@ -230,44 +224,9 @@ class KerasAutoencoder(EmbeddingModelInterface):
                 )(first_decoding_layer)
                 outputs[f"{feature_name}_outputs"] = categorical_output_layer
 
-        # Amélioration pour le texte avec mini transformer decoder
-        if dataset_analysis.text_column is not None:
-            # Préparer l'input pour le transformer decoder
-            # Transformer le bottleneck en séquence pour le decoder
-            decoder_hidden_dim = dataset_analysis.text_column.word_embedding
-            
-            # Projeter vers la dimension d'embedding du texte
-            text_projection = Dense(
-                units=decoder_hidden_dim,
-                activation="relu",
-                name=f"{dataset_analysis.text_column.name}_projection"
-            )(first_decoding_layer)
-            
-            # Répéter pour créer une séquence de la longueur souhaitée
-            repeated_features = RepeatVector(
-                dataset_analysis.text_column.max_length,
-                name=f"{dataset_analysis.text_column.name}_repeat"
-            )(text_projection)
-            
-            # Mini Transformer Decoder pour reconstruire le texte
-            transformer_decoder = TransformerDecoder(
-                num_heads=4,
-                intermediate_dim=decoder_hidden_dim * 2,
-                num_layers=2,
-                dropout=0.1,
-                activation="relu",
-                layer_norm_epsilon=1e-6,
-                name=f"{dataset_analysis.text_column.name}_transformer_decoder"
-            )(repeated_features, use_causal_mask=False)  # Pas de masque causal pour l'autoencoder
-            
-            # Projection finale vers le vocabulaire
-            text_output = Dense(
-                units=dataset_analysis.text_column.vocab_size,
-                activation="softmax",
-                name=f"{dataset_analysis.text_column.name}_outputs"
-            )(transformer_decoder)
-            
-            outputs[f"{dataset_analysis.text_column.name}_outputs"] = text_output
+        # Suppression du décodeur textuel - l'encoder seul suffit pour l'embedding
+        # Le texte est déjà encodé dans la phase encoder et contribue à l'embedding final
+        # Pas besoin de reconstruction textuelle pour un use case d'embedding de similarité
 
         return outputs
 

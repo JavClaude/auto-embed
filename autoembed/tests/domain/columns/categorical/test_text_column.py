@@ -29,13 +29,6 @@ def test_when_i_transform_a_series_i_should_get_a_correct_transformed_text_colum
 
     # Then
     assert transformed_col.input_ids.shape == (2, 32)
-    assert transformed_col.attention_mask.shape == (2, 32)
-
     assert np.array_equal(transformed_col.input_ids[0], transformed_col.input_ids[1])
-    assert np.array_equal(transformed_col.attention_mask[0], transformed_col.attention_mask[1])
-
     assert transformed_col.input_ids[0][0] == text_col.tokenizer.token_to_id(CLS_TOKEN)
     assert transformed_col.input_ids[0][-1] == text_col.tokenizer.token_to_id("[PAD]")
-
-    assert transformed_col.attention_mask[0][0] == 1
-    assert transformed_col.attention_mask[0][-1] == 0

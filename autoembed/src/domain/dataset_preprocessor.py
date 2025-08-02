@@ -73,7 +73,10 @@ class DatasetPreprocessor:
             self.categorical_features_loss_weights = self.compute_categorical_loss_weights(self.categorical_columns)
 
     def preprocess(self, dataframe: pd.DataFrame) -> PreprocessedData:
-        transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names + (self.text_column_name if self.text_column_name else [])].copy()
+        if self.text_column_name:
+            transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names + [self.text_column_name]].copy()
+        else:
+            transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names].copy()
 
         numerical_inputs_features = None
         categorical_inputs_features = None
@@ -97,11 +100,10 @@ class DatasetPreprocessor:
         )
 
     def preprocess_target(self, dataframe: pd.DataFrame) -> PreprocessedTarget:
-        transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names + (self.text_column_name if self.text_column_name else [])].copy()
+        transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names].copy()
 
         numerical_outputs = None
         categorical_outputs = None
-        text_output_feature = None
 
         if self.numerical_columns:
             numerical_outputs = self.numerical_columns.transform(transformed_data[self.numerical_columns_names])
@@ -109,17 +111,13 @@ class DatasetPreprocessor:
         if self.categorical_columns:
             categorical_outputs = {column_name: self.categorical_columns.columns[column_name].transform(transformed_data[column_name]) for column_name in self.categorical_columns.columns.keys()}
 
-        if self.text_column:
-            text_output_feature = self.text_column.transform(transformed_data[self.text_column_name])
-
         return PreprocessedTarget(
             numerical_outputs=numerical_outputs,
             categorical_outputs=categorical_outputs,
-            text_output_feature=text_output_feature,
         )
 
     def get_analysis(self) -> DatasetAnalysis:
-        return DatasetAnalysis(self.numerical_columns, self.categorical_columns, self.categorical_features_loss_weights)
+        return DatasetAnalysis(self.numerical_columns, self.categorical_columns, self.text_column, self.categorical_features_loss_weights)
 
     @staticmethod
     def compute_categorical_loss_weights(categorical_columns: CategoricalColumns | None, max_weight_cap: float = 5.0) -> Dict[str, float]:
