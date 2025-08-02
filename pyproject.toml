@@ -18,7 +18,9 @@ dependencies = [
     "fastapi (>=0.115.13,<0.116.0)",
     "uvicorn (>=0.34.3,<0.35.0)",
     "pyyaml (>=6.0.2,<7.0.0)",
-    "typer (>=0.16.0,<0.17.0)"
+    "typer (>=0.16.0,<0.17.0)",
+    "tokenizers (>=0.21.4,<0.22.0)",
+    "keras-hub (>=0.21.1,<0.22.0)"
 ]
 
 [tool.poetry.group.dev.dependencies]

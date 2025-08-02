@@ -2,9 +2,12 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List
 
+from autoembed.src.domain.columns.categorical.text_column import TextColumn
 from autoembed.src.domain.models.dataset_analysis import DatasetAnalysis
 from autoembed.src.domain.columns.numerical.numerical_columns import NumericalColumns
 from autoembed.src.domain.columns.categorical.categorical_columns import CategoricalColumns
+from autoembed.src.domain.models.preprocessed_data import PreprocessedData
+from autoembed.src.domain.models.preprocessed_target import PreprocessedTarget
 
 
 NUMERICAL_INPUTS_FEATURES_KEY = "numerical_inputs_features"
@@ -14,19 +17,23 @@ NUMERICAL_OUTPUTS_KEY = "numerical_outputs"
 class DatasetPreprocessor:
     def __init__(
         self,
-        numerical_columns_names: List[str] | None = [],
-        categorical_columns_names: List[str] | None = [],
+        numerical_columns_names: List[str] | None = [],  # TODO: introduce a NumericalColumnSpec
+        categorical_columns_names: List[str] | None = [],  # TODO: introduce a CategoricalColumnSpec
+        text_column_name: str | None = None,  # TODO: introduce a TextualColumnSpec
         numerical_columns: NumericalColumns | None = None,
         categorical_columns: CategoricalColumns | None = None,
+        text_column: TextColumn | None = None,
         categorical_features_loss_weights: Dict[str, float] | None = None,
     ):
-        if not numerical_columns_names and not categorical_columns_names and not numerical_columns and not categorical_columns:
-            raise ValueError("numerical_columns_names or categorical_columns_names or numerical_columns or categorical_columns must be provided")
+        if not numerical_columns_names and not categorical_columns_names and not text_column_name and not numerical_columns and not categorical_columns and not text_column:
+            raise ValueError("numerical_columns_names or categorical_columns_names or text_column_name or numerical_columns or categorical_columns or text_column must be provided")
 
         self.numerical_columns_names = numerical_columns_names
         self.categorical_columns_names = categorical_columns_names
+        self.text_column_name = text_column_name
         self.numerical_columns = numerical_columns
         self.categorical_columns = categorical_columns
+        self.text_column = text_column
         self.categorical_features_loss_weights = categorical_features_loss_weights
 
     @classmethod
@@ -34,6 +41,7 @@ class DatasetPreprocessor:
         cls,
         numerical_columns: NumericalColumns | None = None,
         categorical_columns: CategoricalColumns | None = None,
+        text_column: TextColumn | None = None,
         categorical_features_loss_weights: Dict[str, float] | None = None,
     ) -> "DatasetPreprocessor":
         if numerical_columns:
@@ -46,57 +54,69 @@ class DatasetPreprocessor:
         else:
             categorical_columns_names = []
 
-        return cls(
-            numerical_columns_names,
-            categorical_columns_names,
-            numerical_columns,
-            categorical_columns,
-            categorical_features_loss_weights,
-        )
+        if text_column:
+            text_column_name = text_column.name
+        else:
+            text_column_name = None
+
+        return cls(numerical_columns_names, categorical_columns_names, text_column_name, numerical_columns, categorical_columns, text_column, categorical_features_loss_weights)
 
     def fit(self, dataframe: pd.DataFrame) -> None:
         if self.numerical_columns_names:
             self.numerical_columns = NumericalColumns.from_dataframe(dataframe, columns=self.numerical_columns_names)
 
+        if self.text_column_name:
+            self.text_column = TextColumn.from_series(dataframe[self.text_column_name])
+
         if self.categorical_columns_names:
             self.categorical_columns = CategoricalColumns.from_dataframe(dataframe, columns=self.categorical_columns_names)
             self.categorical_features_loss_weights = self.compute_categorical_loss_weights(self.categorical_columns)
 
-    def preprocess(self, dataframe: pd.DataFrame) -> Dict[str, np.array]:
-        transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names].copy()
+    def preprocess(self, dataframe: pd.DataFrame) -> PreprocessedData:
+        transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names + (self.text_column_name if self.text_column_name else [])].copy()
 
-        # TODO: Add real object instead of dict
-        transformed_features = {}
-
-        if self.numerical_columns:
-            for column in self.numerical_columns.columns:
-                transformed_data[column] = self.numerical_columns.columns[column].transform(transformed_data[column])
-
-            transformed_features[NUMERICAL_INPUTS_FEATURES_KEY] = transformed_data[self.numerical_columns_names].values
-
-        if self.categorical_columns:
-            for column in self.categorical_columns.columns:
-                transformed_features[column] = self.categorical_columns.columns[column].transform(transformed_data[column])
-
-        return transformed_features
-
-    def preprocess_target(self, dataframe: pd.DataFrame) -> Dict[str, pd.Series]:
-        transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names].copy()
-
-        # TODO: Add real object instead of dict
-        transformed_target = {}
+        numerical_inputs_features = None
+        categorical_inputs_features = None
+        text_input_feature = None
 
         if self.numerical_columns:
-            for column in self.numerical_columns.columns:
-                transformed_data[column] = self.numerical_columns.columns[column].transform(transformed_data[column])
-
-            transformed_target[NUMERICAL_OUTPUTS_KEY] = transformed_data[self.numerical_columns_names].values
+            numerical_inputs_features = self.numerical_columns.transform(transformed_data[self.numerical_columns_names])
 
         if self.categorical_columns:
-            for column in self.categorical_columns.columns:
-                transformed_target[column + "_outputs"] = self.categorical_columns.columns[column].transform(transformed_data[column])
+            categorical_inputs_features = {
+                column_name: self.categorical_columns.columns[column_name].transform(transformed_data[column_name]) for column_name in self.categorical_columns.columns.keys()
+            }
 
-        return transformed_target
+        if self.text_column:
+            text_input_feature = self.text_column.transform(transformed_data[self.text_column_name])
+
+        return PreprocessedData(
+            numerical_inputs_features=numerical_inputs_features,
+            categorical_inputs_features=categorical_inputs_features,
+            text_input_feature=text_input_feature,
+        )
+
+    def preprocess_target(self, dataframe: pd.DataFrame) -> PreprocessedTarget:
+        transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names + (self.text_column_name if self.text_column_name else [])].copy()
+
+        numerical_outputs = None
+        categorical_outputs = None
+        text_output_feature = None
+
+        if self.numerical_columns:
+            numerical_outputs = self.numerical_columns.transform(transformed_data[self.numerical_columns_names])
+
+        if self.categorical_columns:
+            categorical_outputs = {column_name: self.categorical_columns.columns[column_name].transform(transformed_data[column_name]) for column_name in self.categorical_columns.columns.keys()}
+
+        if self.text_column:
+            text_output_feature = self.text_column.transform(transformed_data[self.text_column_name])
+
+        return PreprocessedTarget(
+            numerical_outputs=numerical_outputs,
+            categorical_outputs=categorical_outputs,
+            text_output_feature=text_output_feature,
+        )
 
     def get_analysis(self) -> DatasetAnalysis:
         return DatasetAnalysis(self.numerical_columns, self.categorical_columns, self.categorical_features_loss_weights)

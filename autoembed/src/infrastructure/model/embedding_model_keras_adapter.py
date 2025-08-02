@@ -1,11 +1,12 @@
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import Input, Dense, Dropout, Embedding, Flatten, Concatenate, Layer, LayerNormalization
+from tensorflow.keras.layers import Input, Dense, Dropout, Embedding, Flatten, Concatenate, Layer, LayerNormalization, GlobalAveragePooling1D
+from keras_hub.layers import TransformerEncoder, TransformerDecoder
 
 from autoembed.src.domain.dataset_preprocessor import (
     NUMERICAL_INPUTS_FEATURES_KEY,
@@ -15,6 +16,8 @@ from autoembed.src.domain.interfaces.embedding_model_interface import (
     EmbeddingModelInterface,
 )
 from autoembed.src.domain.models.dataset_analysis import DatasetAnalysis
+from autoembed.src.domain.models.preprocessed_data import PreprocessedData
+from autoembed.src.domain.models.preprocessed_target import PreprocessedTarget
 
 
 class KerasAutoencoder(EmbeddingModelInterface):
@@ -42,13 +45,12 @@ class KerasAutoencoder(EmbeddingModelInterface):
         hidden_layer_dim: List[int],
     ) -> "KerasAutoencoder":
         autoencoder, encoder = cls._build_model(dataset_analysis, bottleneck_layer_dim, hidden_layer_dim)
-        print(autoencoder.__dict__)
         return cls(autoencoder=autoencoder, encoder=encoder)
 
     def fit(
         self,
-        x: Dict[str, np.ndarray],
-        y: Dict[str, np.ndarray],
+        x: PreprocessedData,
+        y: PreprocessedTarget,
         epochs: int,
         batch_size: int,
     ) -> None:
@@ -84,6 +86,10 @@ class KerasAutoencoder(EmbeddingModelInterface):
                 else:
                     loss_weights[f"{feature_name}_outputs"] = 1.0
                 losses[f"{feature_name}_outputs"] = "sparse_categorical_crossentropy"
+
+        if dataset_analysis.text_column is not None:
+            losses[dataset_analysis.text_column.name] = "sparse_categorical_crossentropy"
+            loss_weights[dataset_analysis.text_column.name] = 1.0
 
         autoencoder.compile(optimizer=Adam(learning_rate=0.001), loss=losses, loss_weights=loss_weights)
 
@@ -123,6 +129,21 @@ class KerasAutoencoder(EmbeddingModelInterface):
 
                 embedding_layer = Flatten(name=f"{feature_name}_embedding_flatten")(embedding_layer)
                 embeddings.append(embedding_layer)
+
+        if dataset_analysis.text_column is not None:
+            text_input_layer = Input(shape=(dataset_analysis.text_column.max_length,), name=dataset_analysis.text_column.name)
+            inputs[dataset_analysis.text_column.name] = text_input_layer
+            embeddings.append(text_input_layer)
+
+            transformer_encoder = TransformerEncoder(
+                num_heads=2,
+                intermediate_dim=128,
+                num_layers=2,
+            )(text_input_layer)
+
+            mean_pooling = GlobalAveragePooling1D()(transformer_encoder)
+
+            embeddings.append(mean_pooling)
 
         all_features_layer = Concatenate()(embeddings)
 
@@ -174,6 +195,15 @@ class KerasAutoencoder(EmbeddingModelInterface):
                     activation="softmax",
                 )(first_decoding_layer)
                 outputs[f"{feature_name}_outputs"] = categorical_output_layer
+
+        if dataset_analysis.text_column is not None:
+            transformer_decoder = TransformerDecoder(
+                num_heads=2,
+                intermediate_dim=128,
+                num_layers=2,
+            )(first_decoding_layer)
+
+            outputs[dataset_analysis.text_column.name] = transformer_decoder
 
         return outputs
 

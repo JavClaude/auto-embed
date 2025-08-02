@@ -96,5 +96,6 @@ def test_when_build_model_from_dataset_analysis_then_should_be_able_to_fit_and_e
 
     assert embedding.shape == (5, 2)
 
+
 # Add test with no numerical columns
 # Add test with no categorical columns
