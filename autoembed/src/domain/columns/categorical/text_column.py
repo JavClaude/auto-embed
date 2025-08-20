@@ -32,8 +32,6 @@ class TextColumn(BaseCategoricalColumn):
 
     @classmethod
     def from_series(cls, series: pd.Series, max_length: int = 64, vocab_size: int = 10000, word_embedding: int = 64) -> "TextColumn":
-        print("TOTOTOOTOTTO")
-        print(type(series))
         clean_series = cls._normalize_text_series(series)
 
         tokenizer = Tokenizer(BPE())
@@ -100,7 +98,7 @@ class TextColumn(BaseCategoricalColumn):
         return self.tokenizer.get_vocab_size()
 
     def get_special_token_ids(self) -> Dict[str, int]:
-        return {token: self.tokenizer.token_to_id(token) for token in SPECIAL_TOKENS}
+        return {token: self.tokenizer.token_to_id(token) for token in SPECIAL_TOKENS}    
 
     @classmethod
     def from_tokenizer(cls, tokenizer: Tokenizer, name: str, max_length: int = 512, embedding_dim: int = 128) -> "TextColumn":

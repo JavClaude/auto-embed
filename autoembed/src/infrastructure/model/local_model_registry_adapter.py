@@ -9,6 +9,7 @@ from kink import inject
 
 from autoembed.src.domain.columns.categorical.categorical_column import CategoricalColumn
 from autoembed.src.domain.columns.categorical.categorical_columns import CategoricalColumns
+from autoembed.src.domain.columns.categorical.text_column import TextColumn
 from autoembed.src.domain.columns.numerical.numerical_column import NumericalColumn
 from autoembed.src.domain.columns.numerical.numerical_columns import NumericalColumns
 from autoembed.src.domain.dataset_preprocessor import DatasetPreprocessor
@@ -47,6 +48,7 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         preprocessor_data = {
             "numerical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in preprocessor.numerical_columns.columns.items()],
             "categorical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in preprocessor.categorical_columns.columns.items()],
+            "text_column": dataclasses.asdict(preprocessor.text_column),
             "categorical_features_loss_weights": preprocessor.categorical_features_loss_weights,
         }
 
@@ -68,6 +70,7 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
 
         numerical_columns = NumericalColumns.from_numerical_columns([NumericalColumn(**list(column.values())[0]) for column in preprocessor_data["numerical_columns"]])
         categorical_columns = CategoricalColumns.from_categorical_columns([CategoricalColumn(**list(column.values())[0]) for column in preprocessor_data["categorical_columns"]])
+        text_column = TextColumn.from_tokenizer()
 
         return DatasetPreprocessor.from_columns(numerical_columns, categorical_columns)
 
