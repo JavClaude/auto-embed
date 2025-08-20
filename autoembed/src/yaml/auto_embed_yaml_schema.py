@@ -16,6 +16,7 @@ class IdColumns:
 class MetadataColumns:
     columns: List[str] | None
 
+
 class VectorStore:
     def __init__(self, **kwargs):
         self.vector_store_backend = kwargs.get("vector_store_backend", "chromadb")
@@ -29,6 +30,7 @@ class VectorStore:
     def _is_backend_supported(self, backend: str) -> bool:
         supported_backend = ["chromadb"]
         return backend in supported_backend
+
 
 @dataclass
 class TrainingData:

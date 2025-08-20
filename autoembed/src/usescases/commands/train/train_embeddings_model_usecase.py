@@ -2,7 +2,6 @@ from logging import Logger
 
 from kink import inject
 
-from autoembed.src.domain.columns.numerical.numerical_columns import NumericalColumns
 from autoembed.src.domain.dataset_preprocessor import (
     DatasetPreprocessor,
 )

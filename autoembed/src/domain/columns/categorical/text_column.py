@@ -30,6 +30,15 @@ class TextColumn(BaseCategoricalColumn):
     max_vocab_size: int = 300
     word_embedding: int = 64
 
+    def get_config(self) -> Dict[str, float | int]:
+        return {
+            "name": self.name,
+            "vocab_size": self.vocab_size,
+            "max_length": self.max_length,
+            "max_vocab_size": self.max_vocab_size,
+            "word_embedding": self.word_embedding,
+        }
+
     @classmethod
     def from_series(cls, series: pd.Series, max_length: int = 64, vocab_size: int = 10000, word_embedding: int = 64) -> "TextColumn":
         clean_series = cls._normalize_text_series(series)
@@ -98,8 +107,8 @@ class TextColumn(BaseCategoricalColumn):
         return self.tokenizer.get_vocab_size()
 
     def get_special_token_ids(self) -> Dict[str, int]:
-        return {token: self.tokenizer.token_to_id(token) for token in SPECIAL_TOKENS}    
+        return {token: self.tokenizer.token_to_id(token) for token in SPECIAL_TOKENS}
 
     @classmethod
-    def from_tokenizer(cls, tokenizer: Tokenizer, name: str, max_length: int = 512, embedding_dim: int = 128) -> "TextColumn":
-        return cls(name=name, tokenizer=tokenizer, max_length=max_length, embedding_dim=embedding_dim)
+    def from_tokenizer(cls, tokenizer: Tokenizer, name: str, vocab_size: int, max_length: int, max_vocab_size: int, word_embedding: int) -> "TextColumn":
+        return cls(name=name, tokenizer=tokenizer, vocab_size=vocab_size, max_length=max_length, max_vocab_size=max_vocab_size, word_embedding=word_embedding)

@@ -1,7 +1,6 @@
 from typing import List, Tuple
 
 import numpy as np
-import pandas as pd
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam

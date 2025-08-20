@@ -6,6 +6,7 @@ import datetime
 from logging import Logger
 
 from kink import inject
+from tokenizers import Tokenizer
 
 from autoembed.src.domain.columns.categorical.categorical_column import CategoricalColumn
 from autoembed.src.domain.columns.categorical.categorical_columns import CategoricalColumns
@@ -48,9 +49,15 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         preprocessor_data = {
             "numerical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in preprocessor.numerical_columns.columns.items()],
             "categorical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in preprocessor.categorical_columns.columns.items()],
-            "text_column": dataclasses.asdict(preprocessor.text_column),
             "categorical_features_loss_weights": preprocessor.categorical_features_loss_weights,
         }
+
+        if preprocessor.text_column is not None:
+            tokenizer_path = f"{path}/tokenizer"
+
+            preprocessor_data["text_column"] = {"text_columnns_attr": preprocessor.text_column.get_config(), "tokenizer_path": tokenizer_path}
+
+            preprocessor.text_column.tokenizer.save(f"{path}/tokenizer")
 
         with open(f"{path}/preprocessor.json", "w") as f:
             json.dump(preprocessor_data, f)
@@ -70,9 +77,22 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
 
         numerical_columns = NumericalColumns.from_numerical_columns([NumericalColumn(**list(column.values())[0]) for column in preprocessor_data["numerical_columns"]])
         categorical_columns = CategoricalColumns.from_categorical_columns([CategoricalColumn(**list(column.values())[0]) for column in preprocessor_data["categorical_columns"]])
-        text_column = TextColumn.from_tokenizer()
 
-        return DatasetPreprocessor.from_columns(numerical_columns, categorical_columns)
+        text_column = None
+
+        if "text_column" in preprocessor_data:
+            tokenizer = Tokenizer.from_file(preprocessor_data["text_column"]["tokenizer_path"])
+            text_columns_attributes = preprocessor_data["text_column"]["text_columnns_attr"]
+            text_column = TextColumn.from_tokenizer(
+                tokenizer,
+                text_columns_attributes["name"],
+                text_columns_attributes["vocab_size"],
+                text_columns_attributes["max_length"],
+                text_columns_attributes["max_vocab_size"],
+                text_columns_attributes["word_embedding"],
+            )
+
+        return DatasetPreprocessor.from_columns(numerical_columns, categorical_columns, text_column)
 
     @inject()
     def load_model(self, model: EmbeddingModelInterface, model_registry_name: str, model_id: str | None = None) -> EmbeddingModelInterface:
