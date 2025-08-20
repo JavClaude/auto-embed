@@ -1,57 +1,63 @@
 project_name: football_player_auto_embed
 
-id_column: version_id
-
-vector_store:
-  vector_collection_name: dab
-  metadata_columns:
-    - category
-    - make
-    - model
-    - commercial_model
-    - version
-    - trim_level
-    - gearbox
-    - energy
-
-
 data:
   training:
     type: csv
-    path: data/dab/dab-last-versions.csv
+    path: data/dab/dab-50k.csv
   prediction:
     type: csv
-    path: data/dab/dab-last-versions.csv
+    path: data/dab/dab-50k.csv
+
+vector_store:
+  vector_store_backend: chromadb
+  id_columns: [r_id, v_label]
+  vector_collection_name: dab
+  metadata_columns:
+    - v_label
+    - r_model
+    - r_make
+    - r_commercial_model
+    - r_category
 
 modeling:
   model_version: latest
-  light_mode: false
-  light_mode_sample_size: 15000
-  bottle_neck_size: 32
+  bottle_neck_size: 64
   epochs: 5
-  batch_size: 128
+  batch_size: 32
   hidden_layer_sizes: [256, 128, 64]
   modeling_columns:
     categorical_columns:
-      - category
-      - make
-      - model
-      - commercial_model
-      - version
-      - trim_level
-      - gearbox
-      - energy
+      - r_model
+      - r_make
+      - r_commercial_model
+      - r_category
+      - v_specs_driven_wheels
+      - v_specs_energy
+      - v_specs_gearbox
+
+    text_column: v_label
+
+    numerical_columns:
+      - v_specs_cubic
+      - v_specs_power_dyn
+      - v_specs_co2
+      - v_specs_nb_of_doors
+      - v_specs_fiscal_horse_power
+      - v_specs_price
+      - v_specs_height
+      - v_specs_weight
+      - v_specs_width
+      - v_specs_max_speed
+      - v_specs_length
+      - v_specs_acceleration0_to100
+      - v_specs_min_trunk_volume
 
 visualisation:
-  n_samples: 15000
+  n_samples: 1000
   visualisation_columns:
     hover_data_columns_name:
-      - category
-      - make
-      - model
-      - commercial_model
-      - version
-      - trim_level
-      - gearbox
-      - energy
-    color_data_column_name: version
+      - r_model
+      - r_make
+      - r_commercial_model
+      - r_category
+    color_data_column_name: r_commercial_model

@@ -17,28 +17,16 @@
 
 ## ✨ Features
 
-- 🎯 **Simple Configuration** - YAML-based setup for quick deployment
-- 🏠 **Local-First** - ChromaDB integration for vector storage
-- 📊 **CSV Support** - Direct filesystem operations
-- 🧠 **Deep Learning** - Keras-based autoencoder models
+- 🎯 **Simple Configuration** - YAML-based setup
 - 🔍 **Similarity Search** - Find related entities instantly
 - 📈 **Visualization** - Interactive embeddings exploration
 - 🛠️ **CLI & API** - Multiple interfaces for different workflows
-
-## TODO
-
-- Add support for textual column with little transformer
-- Add support for monitoring tools: `tensorboard`, `mlflow`
-- Add other support for business data in datawarehouse or operational databases: `Athena`, `Postgres`, ...
-- Add support other vector database: `pgvector`, `milvius`, `s3-vectors`
 
 ## 🏃‍♂️ Quick Start
 
 ### Installation
 
 ```bash
-# Install dependencies
-make install-project
 
 # For development
 make install-project-dev

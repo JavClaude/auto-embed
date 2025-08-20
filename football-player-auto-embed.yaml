@@ -1,12 +1,12 @@
-project_name: football_player_auto_embed
+project_name: dab-auto-embed
 
 data:
   training:
     type: csv
-    path: data/football_players/fifa_players.csv
+    path: data/dab/dab-50k.csv
   prediction:
     type: csv
-    path: data/football_players/fifa_players.csv
+    path: data/dab/dab-50k.csv
 
 vector_store:
   vector_store_backend: chromadb
