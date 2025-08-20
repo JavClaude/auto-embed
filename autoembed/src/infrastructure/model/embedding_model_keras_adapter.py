@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from typing import List, Tuple
 
 import numpy as np
@@ -6,7 +5,7 @@ import pandas as pd
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import Input, Dense, Dropout, Embedding, Flatten, Concatenate, Layer, LayerNormalization, GlobalAveragePooling1D, Reshape
+from tensorflow.keras.layers import Input, Dense, Dropout, Embedding, Flatten, Concatenate, Layer, LayerNormalization, GlobalAveragePooling1D
 from keras_hub.layers import TransformerEncoder
 
 from autoembed.src.domain.dataset_preprocessor import (
@@ -55,10 +54,9 @@ class KerasAutoencoder(EmbeddingModelInterface):
         epochs: int,
         batch_size: int,
     ) -> None:
-        
 
         self.autoencoder.fit(
-            asdict(x), asdict(y), epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True, callbacks=[EarlyStopping(monitor="val_loss", patience=2, restore_best_weights=True)]
+            x.to_dict(), y.to_dict(), epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True, callbacks=[EarlyStopping(monitor="val_loss", patience=2, restore_best_weights=True)]
         )
 
     def embed(self, x: pd.DataFrame) -> np.ndarray:
@@ -118,8 +116,8 @@ class KerasAutoencoder(EmbeddingModelInterface):
                 feature_name,
                 feature,
             ) in dataset_analysis.categorical_columns.columns.items():
-                categorical_input_layer = Input(shape=(1,), name=feature_name)
-                inputs[feature_name] = categorical_input_layer
+                categorical_input_layer = Input(shape=(1,), name=f"{feature_name}_inputs")
+                inputs[f"{feature_name}_inputs"] = categorical_input_layer
 
                 embedding_layer = Embedding(
                     input_dim=len(feature.vocabulary),
@@ -131,14 +129,11 @@ class KerasAutoencoder(EmbeddingModelInterface):
                 embeddings.append(embedding_layer)
 
         if dataset_analysis.text_column is not None:
-            text_input_layer = Input(shape=(dataset_analysis.text_column.max_length,), name=dataset_analysis.text_column.name)
-            inputs[dataset_analysis.text_column.name] = text_input_layer
+            text_input_layer = Input(shape=(dataset_analysis.text_column.max_length,), name=f"{dataset_analysis.text_column.name}_text_input")
+            inputs[f"{dataset_analysis.text_column.name}_text_input"] = text_input_layer
 
             text_embedding = Embedding(
-                input_dim=dataset_analysis.text_column.vocab_size,
-                output_dim=dataset_analysis.text_column.word_embedding,
-                mask_zero=True,
-                name=f"{dataset_analysis.text_column.name}_token_embedding"
+                input_dim=dataset_analysis.text_column.vocab_size, output_dim=dataset_analysis.text_column.word_embedding, mask_zero=True, name=f"{dataset_analysis.text_column.name}_token_embedding"
             )(text_input_layer)
 
             # TODO: Ajouter le nombre de layers en param
@@ -148,11 +143,11 @@ class KerasAutoencoder(EmbeddingModelInterface):
                 dropout=0.1,
                 activation="relu",
                 layer_norm_epsilon=1e-6,
-                name=f"{dataset_analysis.text_column.name}_transformer_encoder"
+                name=f"{dataset_analysis.text_column.name}_transformer_encoder",
             )(text_embedding)
 
             text_encoded = GlobalAveragePooling1D(name=f"{dataset_analysis.text_column.name}_pooling")(transformer_encoder)
-            
+
             embeddings.append(text_encoded)
 
         if len(embeddings) > 1:
@@ -162,19 +157,11 @@ class KerasAutoencoder(EmbeddingModelInterface):
 
         for index, hidden_dim in enumerate(hidden_layer_dim):
             all_features_layer = LayerNormalization(name=f"encoder_layer_norm_{index}")(all_features_layer)
-            all_features_layer = Dense(
-                units=hidden_dim, 
-                activation="leaky_relu", 
-                name=f"encoder_hidden_layer_{index}"
-            )(all_features_layer)
+            all_features_layer = Dense(units=hidden_dim, activation="leaky_relu", name=f"encoder_hidden_layer_{index}")(all_features_layer)
             all_features_layer = LayerNormalization(name=f"encoder_layer_norm_post_{index}")(all_features_layer)
             all_features_layer = Dropout(0.2, name=f"encoder_dropout_{index}")(all_features_layer)
 
-        bottleneck_layer = Dense(
-            units=bottleneck_layer_dim, 
-            activation="tanh", 
-            name="bottleneck_layer"
-        )(all_features_layer)
+        bottleneck_layer = Dense(units=bottleneck_layer_dim, activation="tanh", name="bottleneck_layer")(all_features_layer)
 
         return inputs, bottleneck_layer
 
@@ -187,11 +174,7 @@ class KerasAutoencoder(EmbeddingModelInterface):
         hidden_layer_dim: List[int],
     ) -> dict:
 
-        first_decoding_layer = Dense(
-            units=bottleneck_layer_dim, 
-            activation="leaky_relu", 
-            name="first_decoding_layer"
-        )(bottleneck_layer)
+        first_decoding_layer = Dense(units=bottleneck_layer_dim, activation="leaky_relu", name="first_decoding_layer")(bottleneck_layer)
 
         for index, hidden_dim in enumerate(reversed(hidden_layer_dim)):
             first_decoding_layer = Dense(
@@ -203,7 +186,6 @@ class KerasAutoencoder(EmbeddingModelInterface):
 
         outputs = {}
 
-        # Reconstruction des features numériques
         if dataset_analysis.numerical_columns is not None:
             numerical_outputs = Dense(
                 units=len(dataset_analysis.numerical_columns.columns),
@@ -211,7 +193,6 @@ class KerasAutoencoder(EmbeddingModelInterface):
             )(first_decoding_layer)
             outputs[NUMERICAL_OUTPUTS_KEY] = numerical_outputs
 
-        # Reconstruction des features catégorielles
         if dataset_analysis.categorical_columns is not None:
             for (
                 feature_name,
@@ -223,10 +204,6 @@ class KerasAutoencoder(EmbeddingModelInterface):
                     activation="softmax",
                 )(first_decoding_layer)
                 outputs[f"{feature_name}_outputs"] = categorical_output_layer
-
-        # Suppression du décodeur textuel - l'encoder seul suffit pour l'embedding
-        # Le texte est déjà encodé dans la phase encoder et contribue à l'embedding final
-        # Pas besoin de reconstruction textuelle pour un use case d'embedding de similarité
 
         return outputs
 

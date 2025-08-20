@@ -74,24 +74,29 @@ class DatasetPreprocessor:
 
     def preprocess(self, dataframe: pd.DataFrame) -> PreprocessedData:
         if self.text_column_name:
-            transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names + [self.text_column_name]].copy()
+            data_of_interest = dataframe[self.numerical_columns_names + self.categorical_columns_names + [self.text_column_name]].copy()
         else:
-            transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names].copy()
+            data_of_interest = dataframe[self.numerical_columns_names + self.categorical_columns_names].copy()
 
         numerical_inputs_features = None
         categorical_inputs_features = None
         text_input_feature = None
 
         if self.numerical_columns:
-            numerical_inputs_features = self.numerical_columns.transform(transformed_data[self.numerical_columns_names])
+            for column in self.numerical_columns.columns:
+                column_processor = self.numerical_columns.columns[column]
+                data_of_interest[column] = column_processor.transform(data_of_interest[column])
+
+            numerical_inputs_features = data_of_interest[self.numerical_columns_names].values
 
         if self.categorical_columns:
             categorical_inputs_features = {
-                column_name: self.categorical_columns.columns[column_name].transform(transformed_data[column_name]) for column_name in self.categorical_columns.columns.keys()
+                f"{column_name}_inputs": self.categorical_columns.columns[column_name].transform(data_of_interest[column_name]) for column_name in self.categorical_columns.columns.keys()
             }
 
         if self.text_column:
-            text_input_feature = self.text_column.transform(transformed_data[self.text_column_name])
+            text_input_feature = self.text_column.transform(data_of_interest[self.text_column_name])
+            text_input_feature = {f"{self.text_column_name}_text_input": self.text_column.transform(data_of_interest[self.text_column_name]).input_ids}
 
         return PreprocessedData(
             numerical_inputs_features=numerical_inputs_features,
@@ -100,16 +105,22 @@ class DatasetPreprocessor:
         )
 
     def preprocess_target(self, dataframe: pd.DataFrame) -> PreprocessedTarget:
-        transformed_data = dataframe[self.numerical_columns_names + self.categorical_columns_names].copy()
+        data_of_interest = dataframe[self.numerical_columns_names + self.categorical_columns_names].copy()
 
         numerical_outputs = None
         categorical_outputs = None
 
         if self.numerical_columns:
-            numerical_outputs = self.numerical_columns.transform(transformed_data[self.numerical_columns_names])
+            for column in self.numerical_columns.columns:
+                column_processor = self.numerical_columns.columns[column]
+                data_of_interest[column] = column_processor.transform(data_of_interest[column])
+
+            numerical_outputs = data_of_interest[self.numerical_columns_names].values
 
         if self.categorical_columns:
-            categorical_outputs = {column_name: self.categorical_columns.columns[column_name].transform(transformed_data[column_name]) for column_name in self.categorical_columns.columns.keys()}
+            categorical_outputs = {
+                f"{column_name}_outputs": self.categorical_columns.columns[column_name].transform(data_of_interest[column_name]) for column_name in self.categorical_columns.columns.keys()
+            }
 
         return PreprocessedTarget(
             numerical_outputs=numerical_outputs,

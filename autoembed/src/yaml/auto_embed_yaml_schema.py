@@ -4,7 +4,7 @@ from typing import Any, List, Literal
 
 
 @dataclass
-class IdColumn:
+class IdColumns:
     columns: List[str]
 
 
@@ -75,7 +75,7 @@ class Visualisation:
 class AutoEmbedByYamlFileSchema:
     def __init__(self, **kwargs):
         self.project_name = kwargs.get("project_name")
-        self.id_column = IdColumn(kwargs.get("id_column"))
+        self.id_column = IdColumns(kwargs.get("id_column"))
         self.vector_store = VectorStore(**kwargs.get("vector_store"))
         self.data = Data(**kwargs.get("data"))
         self.modeling = Modeling(**kwargs.get("modeling"))
