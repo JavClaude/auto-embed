@@ -54,13 +54,13 @@ class KerasAutoencoder(EmbeddingModelInterface):
         epochs: int,
         batch_size: int,
     ) -> None:
-
+        self.autoencoder.summary()
         self.autoencoder.fit(
             x.to_dict(), y.to_dict(), epochs=epochs, batch_size=batch_size, validation_split=0.2, shuffle=True, callbacks=[EarlyStopping(monitor="val_loss", patience=2, restore_best_weights=True)]
         )
 
-    def embed(self, x: pd.DataFrame) -> np.ndarray:
-        return self.encoder.predict(x)
+    def embed(self, x: PreprocessedData) -> np.ndarray:
+        return self.encoder.predict(x.to_dict())
 
     @classmethod
     def _build_model(

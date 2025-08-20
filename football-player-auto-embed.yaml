@@ -1,8 +1,16 @@
 project_name: football_player_auto_embed
 
-id_column: [full_name, birth_date]
+data:
+  training:
+    type: csv
+    path: data/football_players/fifa_players.csv
+  prediction:
+    type: csv
+    path: data/football_players/fifa_players.csv
 
 vector_store:
+  vector_store_backend: chromadb
+  id_columns: [full_name, birth_date]
   vector_collection_name: football_player_embeddings
   metadata_columns:
     - full_name
@@ -18,14 +26,6 @@ vector_store:
     - national_team
     - national_rating
     - national_team_position
-
-data:
-  training:
-    type: csv
-    path: data/football_players/fifa_players.csv
-  prediction:
-    type: csv
-    path: data/football_players/fifa_players.csv
 
 modeling:
   model_version: latest
@@ -43,6 +43,8 @@ modeling:
       - body_type
       - national_team
       - national_team_position
+
+    text_column: name
 
     numerical_columns:
       - age
@@ -68,7 +70,7 @@ modeling:
       - freekick_accuracy
 
 visualisation:
-  n_samples: 15000
+  n_samples: 1000
   visualisation_columns:
     hover_data_columns_name:
       - full_name

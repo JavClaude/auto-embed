@@ -66,7 +66,10 @@ class DatasetPreprocessor:
             self.numerical_columns = NumericalColumns.from_dataframe(dataframe, columns=self.numerical_columns_names)
 
         if self.text_column_name:
-            self.text_column = TextColumn.from_series(dataframe[self.text_column_name])
+            print("self.text_column_name")
+            print(self.text_column_name)
+            text_series = dataframe[self.text_column_name]
+            self.text_column = TextColumn.from_series(text_series)
 
         if self.categorical_columns_names:
             self.categorical_columns = CategoricalColumns.from_dataframe(dataframe, columns=self.categorical_columns_names)

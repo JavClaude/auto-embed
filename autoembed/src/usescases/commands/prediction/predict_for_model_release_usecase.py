@@ -48,6 +48,6 @@ class PredictForModelReleaseUsecase:
         preprocessed_data = dataset_preprocessor.preprocess(prediction_data)
         embeddings = model.embed(preprocessed_data)
 
-        embeddings_batch = self.business_embedding_service.generate_business_embeddings(command.id_column, command.vector_store.metadata_columns, embeddings, prediction_data)
+        embeddings_batch = self.batch_business_embedding_service.generate_batch_business_embeddings(command.id_column, command.vector_store.metadata_columns, embeddings, prediction_data)
 
         self.embeddings_repository.update_batch(embeddings_batch)

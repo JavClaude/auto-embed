@@ -15,6 +15,7 @@ from autoembed.src.domain.interfaces.model_registry_interface import (
     ModelRegistryInterface,
 )
 
+from autoembed.src.domain.services.batch_embeddings_service import BatchBusinessEmbeddingService
 from autoembed.src.infrastructure.model.embedding_model_keras_adapter import (
     KerasAutoencoder,
 )
@@ -32,3 +33,4 @@ di[Logger] = logger
 di[DataRepositoryInterface] = DataRepositoryLocalCSVAdapter()
 di[ModelRegistryInterface] = LocalModelRegistryAdapter(base_path="models")
 di[EmbeddingModelInterface] = KerasAutoencoder
+di[BatchBusinessEmbeddingService] = BatchBusinessEmbeddingService()

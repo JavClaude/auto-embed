@@ -14,13 +14,13 @@ class BatchBusinessEmbeddingService:
         we_need_to_build_the_id_column_from_multiple_columns = len(id_columns.columns) > 1
 
         if we_need_to_build_the_id_column_from_multiple_columns:
-            embeddings_metadata = prediction_data[id_columns.columns + metadata_columns].to_dict(orient="records")
+            embeddings_metadata = prediction_data[id_columns.columns + metadata_columns.columns].to_dict(orient="records")
         else:
-            embeddings_metadata = prediction_data[id_columns.columns[0] + metadata_columns.metadata_columns.columns].to_dict(orient="records")
+            embeddings_metadata = prediction_data[id_columns.columns[0] + metadata_columns.columns].to_dict(orient="records")
 
         for metadata, embedding in tqdm.tqdm(zip(embeddings_metadata, embeddings), desc="Generating embeddings"):
             if we_need_to_build_the_id_column_from_multiple_columns:
-                embedding_id = "-".join([str(embeddings_metadata[id_column]) for id_column in id_columns.columns])
+                embedding_id = "-".join([str(metadata[id_column]) for id_column in id_columns.columns])
             else:
                 embedding_id = embeddings_metadata.pop(id_columns.columns[0])
 

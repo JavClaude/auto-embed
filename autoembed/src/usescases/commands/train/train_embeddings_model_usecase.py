@@ -2,6 +2,7 @@ from logging import Logger
 
 from kink import inject
 
+from autoembed.src.domain.columns.numerical.numerical_columns import NumericalColumns
 from autoembed.src.domain.dataset_preprocessor import (
     DatasetPreprocessor,
 )
@@ -43,7 +44,11 @@ class TrainEmbeddingModelUseCase:
 
         self.logger.info("🔍 Fitting dataset preprocessor")
 
-        dataset_preprocessor = DatasetPreprocessor(command.modeling.modeling_columns.numerical_columns, command.modeling.modeling_columns.categorical_columns)
+        dataset_preprocessor = DatasetPreprocessor(
+            numerical_columns_names=command.modeling.modeling_columns.numerical_columns,
+            categorical_columns_names=command.modeling.modeling_columns.categorical_columns,
+            text_column_name=command.modeling.modeling_columns.text_column,
+        )
         dataset_preprocessor.fit(training_data)
 
         preprocessed_data = dataset_preprocessor.preprocess(training_data)
@@ -62,6 +67,9 @@ class TrainEmbeddingModelUseCase:
             self.logger.info(f"🔍 Numerical columns: {len(dataset_analysis.numerical_columns.columns)}")
         if dataset_analysis.categorical_columns is not None:
             self.logger.info(f"🔍 Categorical columns: {len(dataset_analysis.categorical_columns.columns)}")
+
+        if dataset_analysis.text_column is not None:
+            self.logger.info(f"🔍 Text column detected: {dataset_analysis.text_column}")
 
         model.fit(
             preprocessed_data,

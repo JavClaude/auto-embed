@@ -7,18 +7,28 @@ from typing import Any, List, Literal
 class IdColumns:
     columns: List[str]
 
+    def __post_init__(self):
+        if self.columns == []:
+            raise ValueError("Id columns cannot be empty, please provide at least one column")
+
 
 @dataclass
 class MetadataColumns:
-    columns: List[str]
+    columns: List[str] | None
 
-
-@dataclass
 class VectorStore:
     def __init__(self, **kwargs):
+        self.vector_store_backend = kwargs.get("vector_store_backend", "chromadb")
+        if not self._is_backend_supported(self.vector_store_backend):
+            raise ValueError(f"Vector store backend {self.vector_store_backend} not supported")
+
         self.vector_collection_name = kwargs.get("vector_collection_name")
+        self.id_columns = IdColumns(kwargs.get("metadata_columns", []))
         self.metadata_columns = MetadataColumns(kwargs.get("metadata_columns"))
 
+    def _is_backend_supported(self, backend: str) -> bool:
+        supported_backend = ["chromadb"]
+        return backend in supported_backend
 
 @dataclass
 class TrainingData:
@@ -43,6 +53,7 @@ class Data:
 class ModelingColumns:
     categorical_columns: List[str] = field(default_factory=list)
     numerical_columns: List[str] = field(default_factory=list)
+    text_column: str | None = None
 
 
 @dataclass
@@ -75,7 +86,6 @@ class Visualisation:
 class AutoEmbedByYamlFileSchema:
     def __init__(self, **kwargs):
         self.project_name = kwargs.get("project_name")
-        self.id_column = IdColumns(kwargs.get("id_column"))
         self.vector_store = VectorStore(**kwargs.get("vector_store"))
         self.data = Data(**kwargs.get("data"))
         self.modeling = Modeling(**kwargs.get("modeling"))

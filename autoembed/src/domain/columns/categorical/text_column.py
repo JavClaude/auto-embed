@@ -32,6 +32,8 @@ class TextColumn(BaseCategoricalColumn):
 
     @classmethod
     def from_series(cls, series: pd.Series, max_length: int = 64, vocab_size: int = 10000, word_embedding: int = 64) -> "TextColumn":
+        print("TOTOTOOTOTTO")
+        print(type(series))
         clean_series = cls._normalize_text_series(series)
 
         tokenizer = Tokenizer(BPE())
@@ -64,7 +66,7 @@ class TextColumn(BaseCategoricalColumn):
     def _normalize_text_series(series: pd.Series) -> pd.Series:
         clean_series = series.fillna("")
         clean_series = clean_series.astype(str)
-        clean_series = clean_series.apply(TextColumn._normalize_text)
+        clean_series = clean_series.map(TextColumn._normalize_text)
         clean_series = clean_series.replace("", "[EMPTY]")
         return clean_series
 

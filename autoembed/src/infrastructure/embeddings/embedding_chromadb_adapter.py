@@ -77,7 +77,7 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
 
         batch_retrieval_size = 5000
 
-        embeddings_batch = BatchBusinessEmbeddings()()
+        embeddings_batch = BatchBusinessEmbeddings()
 
         for i in tqdm.tqdm(range(0, existing_embeddings, batch_retrieval_size), desc="Getting all embeddings ⌛"):
             try:
