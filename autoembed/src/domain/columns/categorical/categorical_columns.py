@@ -17,3 +17,6 @@ class CategoricalColumns:
     @classmethod
     def from_categorical_columns(cls, categorical_columns: List[CategoricalColumn]) -> "CategoricalColumns":
         return cls(columns={column.name: column for column in categorical_columns})
+
+    def get_all_columns_names(self) -> List[str]:
+        return list(self.columns.keys())

@@ -2,15 +2,16 @@ import dataclasses
 
 import pandas as pd
 
-from autoembed.src.domain.columns.base_columns import BaseColumn
+from autoembed.src.domain.columns.base_columns import BaseNumericalColumn
 
 
 @dataclasses.dataclass
-class NumericalColumn(BaseColumn):
+class NumericalColumn(BaseNumericalColumn):
     name: str
     value_used_to_fill_na: float | int
     mean: float
     std: float
+    is_date: bool = False
 
     @classmethod
     def from_series(cls, series: pd.Series) -> "NumericalColumn":

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
-from autoembed.src.domain.dataset_preprocessor import DatasetPreprocessor
+from typing import Dict
 from autoembed.src.domain.interfaces.embedding_model_interface import (
     EmbeddingModelInterface,
 )
@@ -8,11 +9,11 @@ from autoembed.src.domain.interfaces.embedding_model_interface import (
 
 class ModelRegistryInterface(ABC):
     @abstractmethod
-    def save_model_and_preprocessor(self, model: EmbeddingModelInterface, preprocessor: DatasetPreprocessor, model_registry_name: str) -> None:
+    def save_model_and_preprocessor(self, model: EmbeddingModelInterface, preprocessor: Dict[str, Any], model_registry_name: str) -> None:
         pass
 
     @abstractmethod
-    def load_preprocessor(self, model_registry_name: str, model_id: str | None = None) -> DatasetPreprocessor:
+    def load_json_preprocessor(self, model_registry_name: str, model_id: str | None = None) -> Dict[str, Any]:
         pass
 
     @abstractmethod

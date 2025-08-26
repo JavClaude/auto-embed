@@ -38,7 +38,7 @@ def test_when_build_model_from_dataset_analysis_then_should_build_model_with_cor
     )
 
     dataset_analysis = DatasetAnalysis(
-        numerical_columns=NumericalColumns.from_numerical_columns([numerical_income_column, numerical_year_column]),
+        numerical_columns=NumericalColumns.from_columns([numerical_income_column, numerical_year_column]),
         categorical_columns=CategoricalColumns.from_categorical_columns([categorical_city_column, categorical_region_column]),
         categorical_features_loss_weights={
             "city": 1.0,

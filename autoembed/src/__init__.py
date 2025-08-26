@@ -22,7 +22,7 @@ from autoembed.src.infrastructure.model.embedding_model_keras_adapter import (
 from autoembed.src.infrastructure.data_repository.data_repository_local_csv_adapter import (
     DataRepositoryLocalCSVAdapter,
 )
-from autoembed.src.infrastructure.model.local_model_registry_adapter import (
+from autoembed.src.infrastructure.model_registry.local_model_registry_adapter import (
     LocalModelRegistryAdapter,
 )
 

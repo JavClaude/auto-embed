@@ -12,3 +12,7 @@ class BaseColumn(ABC):
     @abstractmethod
     def transform(self, series: pd.Series) -> pd.Series:
         pass
+
+
+class BaseNumericalColumn(BaseColumn):
+    is_date: bool

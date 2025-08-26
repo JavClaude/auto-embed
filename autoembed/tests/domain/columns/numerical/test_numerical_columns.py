@@ -27,7 +27,7 @@ def test_build_numerical_columns_from_columns():
     height_column = NumericalColumn.from_series(data["height"])
 
     # When
-    numerical_columns = NumericalColumns.from_numerical_columns([income_column, height_column])
+    numerical_columns = NumericalColumns.from_columns([income_column, height_column])
 
     # Then
     assert len(numerical_columns.columns) == 2

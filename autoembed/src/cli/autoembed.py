@@ -57,7 +57,6 @@ def autoembed(mode: AutoEmbedMode, yaml_path: str):
         command = PredictForModelReleaseCommand(
             project_name=auto_embed_yaml_schema.project_name,
             model_version=auto_embed_yaml_schema.modeling.model_version,
-            id_column=auto_embed_yaml_schema.vector_store.id_columns,
             vector_store=auto_embed_yaml_schema.vector_store,
             prediction_data=auto_embed_yaml_schema.data.prediction,
             modeling=auto_embed_yaml_schema.modeling,

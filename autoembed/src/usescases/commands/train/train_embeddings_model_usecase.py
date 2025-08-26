@@ -2,9 +2,7 @@ from logging import Logger
 
 from kink import inject
 
-from autoembed.src.domain.dataset_preprocessor import (
-    DatasetPreprocessor,
-)
+from autoembed.src.domain.dataset_preprocessor import DatasetPreprocessor
 from autoembed.src.domain.interfaces.model_registry_interface import (
     ModelRegistryInterface,
 )
@@ -46,6 +44,7 @@ class TrainEmbeddingModelUseCase:
         dataset_preprocessor = DatasetPreprocessor(
             numerical_columns_names=command.modeling.modeling_columns.numerical_columns,
             categorical_columns_names=command.modeling.modeling_columns.categorical_columns,
+            date_columns_names=command.modeling.modeling_columns.date_columns,
             text_column_name=command.modeling.modeling_columns.text_column,
         )
         dataset_preprocessor.fit(training_data)

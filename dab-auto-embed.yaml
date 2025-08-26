@@ -10,7 +10,7 @@ data:
 
 vector_store:
   vector_store_backend: chromadb
-  id_columns: [r_id, v_label]
+  id_columns: [v_version_id]
   vector_collection_name: dab
   metadata_columns:
     - v_label
@@ -22,10 +22,15 @@ vector_store:
 modeling:
   model_version: latest
   bottle_neck_size: 64
-  epochs: 5
-  batch_size: 32
-  hidden_layer_sizes: [256, 128, 64]
+  epochs: 10
+  batch_size: 128
+  hidden_layer_sizes: [512, 256, 128]
   modeling_columns:
+    text_column: v_label
+    date_columns:
+      - v_start_date
+      - v_end_date
+    
     categorical_columns:
       - r_model
       - r_make
@@ -34,8 +39,6 @@ modeling:
       - v_specs_driven_wheels
       - v_specs_energy
       - v_specs_gearbox
-
-    text_column: v_label
 
     numerical_columns:
       - v_specs_cubic
@@ -53,11 +56,11 @@ modeling:
       - v_specs_min_trunk_volume
 
 visualisation:
-  n_samples: 1000
+  n_samples: 15000
   visualisation_columns:
     hover_data_columns_name:
       - r_model
       - r_make
-      - r_commercial_model
+      - v_label
       - r_category
-    color_data_column_name: r_commercial_model
+    color_data_column_name: r_make
