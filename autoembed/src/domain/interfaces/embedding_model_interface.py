@@ -32,6 +32,10 @@ class EmbeddingModelInterface(ABC):
         pass
 
     @abstractmethod
+    def embed_text_column(self, x: pd.DataFrame) -> np.ndarray:
+        pass
+
+    @abstractmethod
     def load(self, path: str) -> "EmbeddingModelInterface":
         pass
 

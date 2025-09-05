@@ -44,7 +44,7 @@ class PredictForModelReleaseUsecase:
 
         prediction_data = self.data_repository.get_prediction_data(command.prediction_data.path)
         preprocessor_json = self.model_registry.load_json_preprocessor(command.project_name, command.model_version)
-        dataset_preprocessor = DatasetPreprocessor.from_json_definition(preprocessor_json)
+        dataset_preprocessor = DatasetPreprocessor.from_dict_definition(preprocessor_json)
         model = self.model_registry.load_model(self.embedding_model, command.project_name, command.model_version)
 
         preprocessed_data = dataset_preprocessor.preprocess(prediction_data)

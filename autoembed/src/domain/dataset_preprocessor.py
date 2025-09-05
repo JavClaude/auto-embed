@@ -79,7 +79,7 @@ class DatasetPreprocessor:
         )
 
     @classmethod
-    def from_json_definition(cls, data: Dict[str, Any]) -> "DatasetPreprocessor":
+    def from_dict_definition(cls, data: Dict[str, Any]) -> "DatasetPreprocessor":
         numerical_columns = []
         for numerical_column in data["numerical_columns"]:
             categorical_column_attributes = list(numerical_column.values())[0]
@@ -111,7 +111,7 @@ class DatasetPreprocessor:
 
         return DatasetPreprocessor(None, None, None, None, NumericalColumns.from_columns(numerical_columns), CategoricalColumns.from_categorical_columns(categorical_columns), text_column, None)
 
-    def export_as_json(self, path: str) -> Dict[str, Any]:
+    def export_as_dict(self, path: str) -> Dict[str, Any]:
         preprocessor_data = {
             "numerical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in self.numerical_columns.columns.items()],
             "categorical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in self.categorical_columns.columns.items()],

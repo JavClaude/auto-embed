@@ -7,6 +7,7 @@ from logging import Logger
 
 from kink import inject
 
+from autoembed.src.domain.dataset_preprocessor import DatasetPreprocessor
 from autoembed.src.domain.interfaces.embedding_model_interface import (
     EmbeddingModelInterface,
 )
@@ -38,8 +39,8 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         self._save_preprocessor(preprocessor, path)
         self._save_model(model, path)
 
-    def _save_preprocessor(self, preprocessor: Dict[str, Any], path: str) -> None:
-        preprocessor_data = preprocessor.export_as_json(path)
+    def _save_preprocessor(self, preprocessor: DatasetPreprocessor, path: str) -> None:
+        preprocessor_data = preprocessor.export_as_dict(path)
 
         if preprocessor.has_a_text_column():
             tokenizer = preprocessor.get_tokenizer()

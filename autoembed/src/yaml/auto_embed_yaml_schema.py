@@ -75,5 +75,3 @@ class AutoEmbedByYamlFileSchema:
         except Exception as e:
             raise ValueError(f"Invalid YAML schema: {e}")
 
-    def to_json(self) -> str:
-        return json.dumps(asdict(self.data), indent=4)

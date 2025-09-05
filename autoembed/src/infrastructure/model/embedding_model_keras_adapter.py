@@ -61,6 +61,22 @@ class KerasAutoencoder(EmbeddingModelInterface):
     def embed(self, x: PreprocessedData) -> np.ndarray:
         return self.encoder.predict(x.to_dict())
 
+    def embed_text_column(self, x: PreprocessedData) -> np.ndarray:
+        text_column_name = list(x.text_input_feature.keys())[0].replace("_text_input", "")
+
+        text_input_layer_name = f"{text_column_name}_text_input"
+        text_input_layer = self.encoder.get_layer(text_input_layer_name).output
+        text_pooling_layer_name = f"{text_column_name}_pooling"
+        text_pooling_layer = self.encoder.get_layer(text_pooling_layer_name).output
+
+        text_model = Model(
+            inputs=text_input_layer,
+            outputs=text_pooling_layer
+        )
+        
+        text_embedding = text_model.predict(x.text_input_feature[text_column_name + "_text_input"])
+        return text_embedding
+
     @classmethod
     def _build_model(
         cls,

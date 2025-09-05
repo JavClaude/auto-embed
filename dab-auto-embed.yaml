@@ -22,8 +22,8 @@ vector_store:
 modeling:
   model_version: latest
   bottle_neck_size: 64
-  epochs: 10
-  batch_size: 128
+  epochs: 6
+  batch_size: 64
   hidden_layer_sizes: [512, 256, 128]
   modeling_columns:
     text_column: v_label
@@ -56,7 +56,7 @@ modeling:
       - v_specs_min_trunk_volume
 
 visualisation:
-  n_samples: 15000
+  n_samples: 20000
   visualisation_columns:
     hover_data_columns_name:
       - r_model
