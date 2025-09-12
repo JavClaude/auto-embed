@@ -1,10 +1,10 @@
-model_name: latest
-
-id_column: classified_ref
+project_name: classified_embeddings
 
 vector_store:
+  vector_store_backend: chromadb
+  id_columns: [classified_ref]
   vector_collection_name: classified_embeddings
-  metadata_columns: 
+  metadata_columns:
     - vehicle_make
     - vehicle_model
     - vehicle_commercial_name
@@ -15,19 +15,18 @@ vector_store:
 data:
   training:
     type: csv
-    path: data/training/classified_mars_juin_2025.csv
+    path: data/classified/prediction/classified_online_23_06.csv
   prediction:
     type: csv
-    path: data/prediction/classified_online_23_06.csv
+    path: data/classified/prediction/classified_online_23_06.csv
 
 modeling:
-  light_mode: false
-  light_mode_sample_size: 15000
-  bottle_neck_size: 96
+  model_version: latest
+  bottle_neck_size: 64 # TODO: renommer en embedding_size
   epochs: 5
-  batch_size: 256
+  batch_size: 512
   hidden_layer_sizes: [512, 256, 128]
-  modeling_columns:
+  modeling_columns:    
     categorical_columns:
       - customer_type 
       - vehicle_seats 
@@ -67,7 +66,6 @@ modeling:
       - vehicle_width
       - initial_price
       - vehicle_price_new
-      - vehicle_price
       - vehicle_year
 
 visualisation:

@@ -41,15 +41,11 @@ class PredictForModelReleaseUsecase:
 
     def execute(self, command: PredictForModelReleaseCommand) -> None:
         self.logger.info(f"Predicting for model release {command.project_name} {command.model_version} for {command.prediction_data.path}")
-
         prediction_data = self.data_repository.get_prediction_data(command.prediction_data.path)
         preprocessor_json = self.model_registry.load_json_preprocessor(command.project_name, command.model_version)
         dataset_preprocessor = DatasetPreprocessor.from_dict_definition(preprocessor_json)
         model = self.model_registry.load_model(self.embedding_model, command.project_name, command.model_version)
-
         preprocessed_data = dataset_preprocessor.preprocess(prediction_data)
         embeddings = model.embed(preprocessed_data)
-
         embeddings_batch = self.batch_business_embedding_service.generate_batch_business_embeddings(command.vector_store.id_columns, command.vector_store.metadata_columns, embeddings, prediction_data)
-
         self.embeddings_repository.update_batch(embeddings_batch)

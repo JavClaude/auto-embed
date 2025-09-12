@@ -32,13 +32,6 @@ class TrainEmbeddingModelUseCase:
 
         training_data = self.data_repository.get_training_data(command.training_data.path)
 
-        if command.modeling.light_mode:
-            self.logger.info("✅ Sampling training data for light mode")
-            if len(training_data) > command.modeling.light_mode_sample_size:
-                training_data = training_data.sample(n=command.modeling.light_mode_sample_size)
-            else:
-                self.logger.warning(f"⚠️ Training data is less than {command.modeling.light_mode_sample_size}, using all data ({len(training_data)})")
-
         self.logger.info("🔍 Fitting dataset preprocessor")
 
         dataset_preprocessor = DatasetPreprocessor(

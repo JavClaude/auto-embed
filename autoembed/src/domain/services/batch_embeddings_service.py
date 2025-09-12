@@ -4,15 +4,14 @@ import tqdm
 
 from autoembed.src.domain.entities.id_columns import IdColumns
 from autoembed.src.domain.entities.metadata_columns import MetadataColumns
-from autoembed.src.domain.models.batch_business_embeddings import BatchBusinessEmbeddings
-from autoembed.src.domain.models.business_embeddings import BusinessEmbeddings
+from autoembed.src.domain.models.embeddings.batch_business_embeddings import BatchBusinessEmbeddings
+from autoembed.src.domain.models.embeddings.business_embeddings import BusinessEmbeddings
 
 
 class BatchBusinessEmbeddingService:
     def generate_batch_business_embeddings(self, id_columns: IdColumns, metadata_columns: MetadataColumns, embeddings: np.ndarray, prediction_data: pd.DataFrame) -> BatchBusinessEmbeddings:
         embeddings_batch = BatchBusinessEmbeddings()
 
-        print(type(id_columns))
         we_need_to_build_the_id_column_from_multiple_columns = len(id_columns.columns) > 1
 
         embeddings_metadata = prediction_data[id_columns.columns + metadata_columns.columns].to_dict(orient="records")

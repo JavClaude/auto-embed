@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List
+import numpy as np
 
-from autoembed.src.domain.models.batch_business_embeddings import BatchBusinessEmbeddings
-from autoembed.src.domain.models.business_embeddings import BusinessEmbeddings
+from autoembed.src.domain.models.embeddings.batch_business_embeddings import BatchBusinessEmbeddings
+from autoembed.src.domain.models.embeddings.business_embeddings import BusinessEmbeddings
 
 
 class EmbeddingsRepositoryInterface(ABC):
@@ -11,7 +12,7 @@ class EmbeddingsRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    def get_most_similar_embeddings_by_id(self, id: str, n: int = 10) -> List[str]:
+    def get_most_similar_embeddings(self, embeddings: np.ndarray, n: int = 10) -> List[str]:
         pass
 
     @abstractmethod

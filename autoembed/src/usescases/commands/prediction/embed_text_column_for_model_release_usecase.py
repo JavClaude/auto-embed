@@ -30,5 +30,7 @@ class EmbedTextColumnForModelReleaseUsecase:
 
         preprocessed_data = dataset_preprocessor.preprocess(prediction_data)
         embeddings = model.embed_text_column(preprocessed_data)
-
+        embeddings_batch = BatchBusinessEmbeddingService().generate_batch_business_embeddings(command.vector_store.id_columns, command.vector_store.metadata_columns, embeddings, prediction_data)
+        
+        self.embeddings_repository.update_batch(embeddings_batch)
         self.logger.info(f"Text column embeddings: {embeddings.shape}")

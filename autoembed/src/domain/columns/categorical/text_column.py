@@ -9,7 +9,7 @@ from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
 from tokenizers.processors import TemplateProcessing
 
-from autoembed.src.domain.columns.categorical.base_categorical_column import BaseCategoricalColumn
+from autoembed.src.domain.columns.base_columns import BaseColumn
 
 CLS_TOKEN = "[CLS]"
 SEP_TOKEN = "[SEP]"
@@ -22,7 +22,7 @@ class TransformedTextColumn:
 
 
 @dataclass
-class TextColumn(BaseCategoricalColumn):
+class TextColumn(BaseColumn):
     name: str
     tokenizer: Tokenizer
     vocab_size: int

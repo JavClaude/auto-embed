@@ -2,7 +2,7 @@ import json
 from typing import Any, List, Literal
 from dataclasses import asdict, dataclass, field
 
-from autoembed.src.domain.entities.vector_store_specs import VectorStoreSpecs
+from autoembed.src.domain.specs_schemas.vector_store_specs import VectorStoreSpecs
 
 
 @dataclass

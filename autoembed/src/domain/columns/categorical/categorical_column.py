@@ -2,13 +2,13 @@ import dataclasses
 from typing import Dict
 
 import pandas as pd
-from autoembed.src.domain.columns.categorical.base_categorical_column import BaseCategoricalColumn
+from autoembed.src.domain.columns.base_columns import BaseColumn
 
 UNK_VALUE = "unk"
 
 
 @dataclasses.dataclass
-class CategoricalColumn(BaseCategoricalColumn):
+class CategoricalColumn(BaseColumn):
     name: str
     vocabulary: Dict[str, int]
     value_used_to_fill_na: str = UNK_VALUE
@@ -31,6 +31,7 @@ class CategoricalColumn(BaseCategoricalColumn):
 
     @staticmethod
     def infer_embedding_dim(vocabulary: Dict[str, int]) -> int:
+        # TODO: Améliorer la logique d'inférence de la dimension d'embedding
         if len(vocabulary) < 30:
             return 32
         else:

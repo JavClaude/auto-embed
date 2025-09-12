@@ -9,11 +9,11 @@ from autoembed.src.domain.columns.categorical.categorical_column import Categori
 from autoembed.src.domain.columns.categorical.text_column import TextColumn
 from autoembed.src.domain.columns.numerical.date_column import DateColumn
 from autoembed.src.domain.columns.numerical.numerical_column import NumericalColumn
-from autoembed.src.domain.models.dataset_analysis import DatasetAnalysis
+from autoembed.src.domain.models.data.dataset_analysis import DatasetAnalysis
 from autoembed.src.domain.columns.numerical.numerical_columns import NumericalColumns
 from autoembed.src.domain.columns.categorical.categorical_columns import CategoricalColumns
-from autoembed.src.domain.models.preprocessed_data import PreprocessedData
-from autoembed.src.domain.models.preprocessed_target import PreprocessedTarget
+from autoembed.src.domain.models.data.preprocessed_data import PreprocessedData, PreprocessedTextData
+from autoembed.src.domain.models.data.preprocessed_target import PreprocessedTarget
 
 
 NUMERICAL_INPUTS_FEATURES_KEY = "numerical_inputs_features"
@@ -145,6 +145,12 @@ class DatasetPreprocessor:
         if self.categorical_columns_names:
             self.categorical_columns = CategoricalColumns.from_dataframe(dataframe, columns=self.categorical_columns_names)
             self.categorical_features_loss_weights = self.compute_categorical_loss_weights(self.categorical_columns)
+
+    def preprocess_text(self, text: str) -> PreprocessedTextData:
+        if self.text_column:
+            return PreprocessedTextData(text_column_name=self.text_column.name, text_input_feature={f"{self.text_column.name}_text_input": self.text_column.encode_single_text(text).input_ids})
+        else:
+            raise ValueError("No text column found")
 
     def preprocess(self, dataframe: pd.DataFrame) -> PreprocessedData:
         if self.text_column:

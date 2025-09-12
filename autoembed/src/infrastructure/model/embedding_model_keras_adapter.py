@@ -14,9 +14,9 @@ from autoembed.src.domain.dataset_preprocessor import (
 from autoembed.src.domain.interfaces.embedding_model_interface import (
     EmbeddingModelInterface,
 )
-from autoembed.src.domain.models.dataset_analysis import DatasetAnalysis
-from autoembed.src.domain.models.preprocessed_data import PreprocessedData
-from autoembed.src.domain.models.preprocessed_target import PreprocessedTarget
+from autoembed.src.domain.models.data.dataset_analysis import DatasetAnalysis
+from autoembed.src.domain.models.data.preprocessed_data import PreprocessedData, PreprocessedTextData
+from autoembed.src.domain.models.data.preprocessed_target import PreprocessedTarget
 
 
 class KerasAutoencoder(EmbeddingModelInterface):
@@ -61,10 +61,14 @@ class KerasAutoencoder(EmbeddingModelInterface):
     def embed(self, x: PreprocessedData) -> np.ndarray:
         return self.encoder.predict(x.to_dict())
 
-    def embed_text_column(self, x: PreprocessedData) -> np.ndarray:
-        text_column_name = list(x.text_input_feature.keys())[0].replace("_text_input", "")
+    def embed_text_column(self, x: PreprocessedTextData | PreprocessedData) -> np.ndarray:
+        if isinstance(x, PreprocessedTextData):
+            text_column_name = x.text_column_name
+            text_input_layer_name = f"{text_column_name}_text_input"
+        else:
+            text_input_layer_name = list(x.text_input_feature.keys())[0]
+            text_column_name = text_input_layer_name.replace("_text_input", "")
 
-        text_input_layer_name = f"{text_column_name}_text_input"
         text_input_layer = self.encoder.get_layer(text_input_layer_name).output
         text_pooling_layer_name = f"{text_column_name}_pooling"
         text_pooling_layer = self.encoder.get_layer(text_pooling_layer_name).output
@@ -153,15 +157,23 @@ class KerasAutoencoder(EmbeddingModelInterface):
 
             # TODO: Ajouter le nombre de layers en param
             transformer_encoder = TransformerEncoder(
-                num_heads=4,
+                num_heads=8,
                 intermediate_dim=dataset_analysis.text_column.word_embedding * 2,
                 dropout=0.1,
                 activation="relu",
                 layer_norm_epsilon=1e-6,
                 name=f"{dataset_analysis.text_column.name}_transformer_encoder",
             )(text_embedding)
+            transformer_encoder2 = TransformerEncoder(
+                num_heads=8,
+                intermediate_dim=dataset_analysis.text_column.word_embedding * 2,
+                dropout=0.1,
+                activation="relu",
+                layer_norm_epsilon=1e-6,
+                name=f"{dataset_analysis.text_column.name}_transformer_encoder_2",
+            )(transformer_encoder)
 
-            text_encoded = GlobalAveragePooling1D(name=f"{dataset_analysis.text_column.name}_pooling")(transformer_encoder)
+            text_encoded = GlobalAveragePooling1D(name=f"{dataset_analysis.text_column.name}_pooling")(transformer_encoder2)
 
             embeddings.append(text_encoded)
 

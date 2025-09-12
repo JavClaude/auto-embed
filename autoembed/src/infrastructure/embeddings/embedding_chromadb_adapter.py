@@ -1,12 +1,13 @@
 from typing import List
 from logging import Logger
 
+import numpy as np
 import tqdm
 import chromadb
 from kink import inject
 
-from autoembed.src.domain.models.business_embeddings import BusinessEmbeddings
-from autoembed.src.domain.models.batch_business_embeddings import BatchBusinessEmbeddings
+from autoembed.src.domain.models.embeddings.business_embeddings import BusinessEmbeddings
+from autoembed.src.domain.models.embeddings.batch_business_embeddings import BatchBusinessEmbeddings
 from autoembed.src.domain.interfaces.embeddings_repository_interface import EmbeddingsRepositoryInterface
 
 
@@ -33,10 +34,14 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
             embeddings=self.collection.get(ids=[id_column_name], include=["embeddings"])["embeddings"][0],
         )
 
-    def get_most_similar_embeddings_by_id(self, id_column_name: str, n: int = 10) -> List[BusinessEmbeddings]:
-        self.logger.info(f"Getting most similar embeddings for {id_column_name}")
-        most_similar_ids = self.collection.query(query_embeddings=[id_column_name], n_results=n)["ids"]
-        return [id_column_name for id_column_name in most_similar_ids if id_column_name != id_column_name]
+    def get_most_similar_embeddings(self, embeddings: np.ndarray, n: int = 10) -> List[str]:
+        self.logger.info(f"Getting most similar embeddings")
+        results = self.collection.query(query_embeddings=embeddings.tolist(), n_results=n, include=["metadatas"])
+        print(results)
+        return {
+            "ids": results["ids"],
+            "metadatas": results["metadatas"],
+        }
 
     def update_embeddings(self, embeddings: BusinessEmbeddings) -> None:
         self.logger.info(f"Updating embeddings for {embeddings.id}")
