@@ -1,12 +1,8 @@
-import datetime
 from logging import Logger
-import uuid
 
 from kink import inject
 
-from autoembed.src.domain.dataset_preprocessor import (
-    DatasetPreprocessor,
-)
+from autoembed.src.domain.dataset_preprocessor import DatasetPreprocessor
 from autoembed.src.domain.interfaces.model_registry_interface import (
     ModelRegistryInterface,
 )
@@ -36,16 +32,14 @@ class TrainEmbeddingModelUseCase:
 
         training_data = self.data_repository.get_training_data(command.training_data.path)
 
-        if command.modeling.light_mode:
-            self.logger.info("✅ Sampling training data for light mode")
-            if len(training_data) > command.modeling.light_mode_sample_size:
-                training_data = training_data.sample(n=command.modeling.light_mode_sample_size)
-            else:
-                self.logger.warning(f"⚠️ Training data is less than {command.modeling.light_mode_sample_size}, using all data ({len(training_data)})")
-
         self.logger.info("🔍 Fitting dataset preprocessor")
 
-        dataset_preprocessor = DatasetPreprocessor(command.modeling.modeling_columns.numerical_columns, command.modeling.modeling_columns.categorical_columns)
+        dataset_preprocessor = DatasetPreprocessor(
+            numerical_columns_names=command.modeling.modeling_columns.numerical_columns,
+            categorical_columns_names=command.modeling.modeling_columns.categorical_columns,
+            date_columns_names=command.modeling.modeling_columns.date_columns,
+            text_column_name=command.modeling.modeling_columns.text_column,
+        )
         dataset_preprocessor.fit(training_data)
 
         preprocessed_data = dataset_preprocessor.preprocess(training_data)
@@ -56,12 +50,17 @@ class TrainEmbeddingModelUseCase:
 
         model = KerasAutoencoder.from_dataset_analysis(
             dataset_analysis,
-            command.modeling.bottle_neck_size, 
+            command.modeling.bottle_neck_size,
             command.modeling.hidden_layer_sizes,
         )
 
-        self.logger.info(f"🔍 Numerical columns: {len(dataset_analysis.numerical_columns.columns)}")
-        self.logger.info(f"🔍 Categorical columns: {len(dataset_analysis.categorical_columns.columns)}")
+        if dataset_analysis.numerical_columns is not None:
+            self.logger.info(f"🔍 Numerical columns: {len(dataset_analysis.numerical_columns.columns)}")
+        if dataset_analysis.categorical_columns is not None:
+            self.logger.info(f"🔍 Categorical columns: {len(dataset_analysis.categorical_columns.columns)}")
+
+        if dataset_analysis.text_column is not None:
+            self.logger.info(f"🔍 Text column detected: {dataset_analysis.text_column}")
 
         model.fit(
             preprocessed_data,
@@ -69,5 +68,5 @@ class TrainEmbeddingModelUseCase:
             epochs=command.modeling.epochs,
             batch_size=command.modeling.batch_size,
         )
-        
+
         self.embedding_model_registry.save_model_and_preprocessor(model, dataset_preprocessor, command.project_name)

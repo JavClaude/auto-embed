@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 
-from autoembed.src.domain.entites.dataset_analysis import DatasetAnalysis
+from autoembed.src.domain.models.data.preprocessed_data import PreprocessedData, PreprocessedTextData
+from autoembed.src.domain.models.data.dataset_analysis import DatasetAnalysis
 
 
 class EmbeddingModelInterface(ABC):
@@ -28,7 +29,11 @@ class EmbeddingModelInterface(ABC):
         pass
 
     @abstractmethod
-    def embed(self, x: pd.DataFrame) -> np.ndarray:
+    def embed(self, x: PreprocessedData) -> np.ndarray:
+        pass
+
+    @abstractmethod
+    def embed_text_column(self, x: PreprocessedTextData | PreprocessedData) -> np.ndarray:
         pass
 
     @abstractmethod

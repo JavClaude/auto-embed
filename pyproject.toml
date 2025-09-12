@@ -18,7 +18,9 @@ dependencies = [
     "fastapi (>=0.115.13,<0.116.0)",
     "uvicorn (>=0.34.3,<0.35.0)",
     "pyyaml (>=6.0.2,<7.0.0)",
-    "typer (>=0.16.0,<0.17.0)"
+    "typer (>=0.16.0,<0.17.0)",
+    "tokenizers (>=0.21.4,<0.22.0)",
+    "keras-hub (>=0.21.1,<0.22.0)"
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -28,6 +30,7 @@ pytest = "^8.4.1"
 flake8 = "^7.2.0"
 sqlite-vec = "^0.1.6"
 chromadb = "^1.0.13"
+pytest-cov = "^6.2.1"
 
 [tool.poetry.group.visualization.dependencies]
 scikit-learn = "^1.7.0"
@@ -36,6 +39,7 @@ plotly = "^6.2.0"
 [tool.poetry.scripts]
 
 autoembed-cli = "autoembed.src.cli.autoembed:main"
+autoembed = "autoembed.src.cli.autoembed_new_cli:main"
 
 [tool.black]
 line-length = 200

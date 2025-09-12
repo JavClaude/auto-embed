@@ -1,7 +1,7 @@
 import os
 import json
+from typing import Any, Dict
 import uuid
-import dataclasses
 import datetime
 from logging import Logger
 
@@ -13,12 +13,6 @@ from autoembed.src.domain.interfaces.embedding_model_interface import (
 )
 from autoembed.src.domain.interfaces.model_registry_interface import (
     ModelRegistryInterface,
-)
-from autoembed.src.domain.entites.columns import (
-    CategoricalColumn,
-    CategoricalColumns,
-    NumericalColumn,
-    NumericalColumns,
 )
 
 
@@ -32,7 +26,7 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
             self.logger.info(f"Creating directory {base_path}")
             os.makedirs(base_path)
 
-    def save_model_and_preprocessor(self, model: EmbeddingModelInterface, preprocessor: DatasetPreprocessor, model_registry_name: str) -> None:
+    def save_model_and_preprocessor(self, model: EmbeddingModelInterface, preprocessor: Dict[str, Any], model_registry_name: str) -> None:
         model_id = self._generate_model_id()
         self.logger.info(f"Saving model {model_id}")
 
@@ -46,11 +40,11 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         self._save_model(model, path)
 
     def _save_preprocessor(self, preprocessor: DatasetPreprocessor, path: str) -> None:
-        preprocessor_data = {
-            "numerical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in preprocessor.numerical_columns.columns.items()],
-            "categorical_columns": [{column_name: dataclasses.asdict(column)} for column_name, column in preprocessor.categorical_columns.columns.items()],
-            "categorical_features_loss_weights": preprocessor.categorical_features_loss_weights,
-        }
+        preprocessor_data = preprocessor.export_as_dict(path)
+
+        if preprocessor.has_a_text_column():
+            tokenizer = preprocessor.get_tokenizer()
+            tokenizer.save(f"{path}/tokenizer")
 
         with open(f"{path}/preprocessor.json", "w") as f:
             json.dump(preprocessor_data, f)
@@ -59,7 +53,7 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         self.logger.info(f"Saving model to {path}")
         model.save(path)
 
-    def load_preprocessor(self, model_registry_name: str, model_id: str) -> DatasetPreprocessor:
+    def load_json_preprocessor(self, model_registry_name: str, model_id: str) -> Dict[str, Any]:
         if model_id == "latest":
             model_id = self._get_latest_model_id(model_registry_name=model_registry_name)
 
@@ -68,10 +62,7 @@ class LocalModelRegistryAdapter(ModelRegistryInterface):
         with open(f"{self.path}/{model_registry_name}/{model_id}/preprocessor.json", "r") as f:
             preprocessor_data = json.load(f)
 
-        numerical_columns = NumericalColumns.from_numerical_columns([NumericalColumn(**list(column.values())[0]) for column in preprocessor_data["numerical_columns"]])
-        categorical_columns = CategoricalColumns.from_categorical_columns([CategoricalColumn(**list(column.values())[0]) for column in preprocessor_data["categorical_columns"]])
-
-        return DatasetPreprocessor.from_columns(numerical_columns, categorical_columns)
+        return preprocessor_data
 
     @inject()
     def load_model(self, model: EmbeddingModelInterface, model_registry_name: str, model_id: str | None = None) -> EmbeddingModelInterface:

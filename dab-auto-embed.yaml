@@ -1,0 +1,66 @@
+project_name: dab-auto-embed
+
+data:
+  training:
+    type: csv
+    path: data/dab/dab-50k.csv
+  prediction:
+    type: csv
+    path: data/dab/dab-50k.csv
+
+vector_store:
+  vector_store_backend: chromadb
+  id_columns: [v_version_id]
+  vector_collection_name: dab
+  metadata_columns:
+    - v_label
+    - r_model
+    - r_make
+    - r_commercial_model
+    - r_category
+
+modeling:
+  model_version: latest
+  bottle_neck_size: 128 # TODO: renommer en embedding_size
+  epochs: 10
+  batch_size: 64
+  hidden_layer_sizes: [1024, 512, 256]
+  modeling_columns:
+    text_column: v_label
+    date_columns:
+      - v_start_date
+      - v_end_date
+    
+    categorical_columns:
+      - r_model
+      - r_make
+      - r_commercial_model
+      - r_category
+      - v_specs_driven_wheels
+      - v_specs_energy
+      - v_specs_gearbox
+
+    numerical_columns:
+      - v_specs_cubic
+      - v_specs_power_dyn
+      - v_specs_co2
+      - v_specs_nb_of_doors
+      - v_specs_fiscal_horse_power
+      - v_specs_price
+      - v_specs_height
+      - v_specs_weight
+      - v_specs_width
+      - v_specs_max_speed
+      - v_specs_length
+      - v_specs_acceleration0_to100
+      - v_specs_min_trunk_volume
+
+visualisation:
+  n_samples: 20000
+  visualisation_columns:
+    hover_data_columns_name:
+      - r_model
+      - r_make
+      - v_label
+      - r_category
+    color_data_column_name: r_make

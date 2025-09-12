@@ -24,6 +24,14 @@ run-lint: ## Run the linting
 run-lint-fix: ## Run the linting and fix the issues
 	poetry run ruff check autoembed --fix
 
+.PHONY: run-format
+run-format: ## Run the formater
+	poetry run black autoembed --check
+
+.PHONY: run-format-fix
+run-format-fix: ## Run the formater and fix the issues
+	poetry run black autoembed
+
 .PHONY: run-tests
 run-tests: ## Run the tests
 	poetry run pytest

@@ -1,22 +1,8 @@
 import json
-from dataclasses import asdict, dataclass
 from typing import Any, List, Literal
+from dataclasses import asdict, dataclass, field
 
-
-@dataclass
-class IdColumn:
-    columns: List[str]
-
-@dataclass
-class MetadataColumns:
-    columns: List[str]
-
-
-@dataclass
-class VectorStore:
-    def __init__(self, **kwargs):   
-        self.vector_collection_name = kwargs.get("vector_collection_name")
-        self.metadata_columns = MetadataColumns(kwargs.get("metadata_columns"))
+from autoembed.src.domain.specs_schemas.vector_store_specs import VectorStoreSpecs
 
 
 @dataclass
@@ -30,6 +16,7 @@ class PredictionData:
     type: Literal["csv", "parquet"]
     path: str
 
+
 @dataclass
 class Data:
     def __init__(self, **kwargs):
@@ -39,8 +26,10 @@ class Data:
 
 @dataclass
 class ModelingColumns:
-    categorical_columns: List[str]
-    numerical_columns: List[str]
+    categorical_columns: List[str] = field(default_factory=list)
+    numerical_columns: List[str] = field(default_factory=list)
+    date_columns: List[str] = field(default_factory=list)
+    text_column: str | None = None
 
 
 @dataclass
@@ -64,7 +53,7 @@ class VisualisationColumns:
 
 @dataclass
 class Visualisation:
-    def __init__(self, **kwargs):   
+    def __init__(self, **kwargs):
         self.n_samples = kwargs.get("n_samples")
         self.visualisation_columns = VisualisationColumns(**kwargs.get("visualisation_columns"))
 
@@ -73,8 +62,7 @@ class Visualisation:
 class AutoEmbedByYamlFileSchema:
     def __init__(self, **kwargs):
         self.project_name = kwargs.get("project_name")
-        self.id_column = IdColumn(kwargs.get("id_column"))
-        self.vector_store = VectorStore(**kwargs.get("vector_store"))
+        self.vector_store = VectorStoreSpecs.from_specs(**kwargs.get("vector_store"))
         self.data = Data(**kwargs.get("data"))
         self.modeling = Modeling(**kwargs.get("modeling"))
         self.visualisation = Visualisation(**kwargs.get("visualisation"))
@@ -87,5 +75,3 @@ class AutoEmbedByYamlFileSchema:
         except Exception as e:
             raise ValueError(f"Invalid YAML schema: {e}")
 
-    def to_json(self) -> str:
-        return json.dumps(asdict(self.data), indent=4)

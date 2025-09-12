@@ -1,14 +1,14 @@
+from typing import List
 from logging import Logger
 
-import chromadb
-from typing import List
-from kink import inject
+import numpy as np
 import tqdm
+import chromadb
+from kink import inject
 
-from autoembed.src.domain.entites.embeddings import BusinessEmbeddings, BatchOfEmbeddings
-from autoembed.src.domain.interfaces.embeddings_repository_interface import (
-    EmbeddingsRepositoryInterface
-)
+from autoembed.src.domain.models.embeddings.business_embeddings import BusinessEmbeddings
+from autoembed.src.domain.models.embeddings.batch_business_embeddings import BatchBusinessEmbeddings
+from autoembed.src.domain.interfaces.embeddings_repository_interface import EmbeddingsRepositoryInterface
 
 
 @inject()
@@ -34,10 +34,14 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
             embeddings=self.collection.get(ids=[id_column_name], include=["embeddings"])["embeddings"][0],
         )
 
-    def get_most_similar_embeddings_by_id(self, id_column_name: str, n: int = 6) -> List[BusinessEmbeddings]:
-        self.logger.info(f"Getting most similar embeddings for {id_column_name}")
-        most_similar_ids = self.collection.query(query_embeddings=[id_column_name], n_results=n)["ids"]
-        return [id_column_name for id_column_name in most_similar_ids if id_column_name != id_column_name]
+    def get_most_similar_embeddings(self, embeddings: np.ndarray, n: int = 10) -> List[str]:
+        self.logger.info(f"Getting most similar embeddings")
+        results = self.collection.query(query_embeddings=embeddings.tolist(), n_results=n, include=["metadatas"])
+        print(results)
+        return {
+            "ids": results["ids"],
+            "metadatas": results["metadatas"],
+        }
 
     def update_embeddings(self, embeddings: BusinessEmbeddings) -> None:
         self.logger.info(f"Updating embeddings for {embeddings.id}")
@@ -47,9 +51,8 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
             embeddings=[embeddings.embeddings],
         )
 
-    def update_batch(self, embeddings_batch: BatchOfEmbeddings) -> None:
+    def update_batch(self, embeddings_batch: BatchBusinessEmbeddings) -> None:
         self.logger.info(f"Updating batch of {len(embeddings_batch)} embeddings")
-
 
         for i in tqdm.tqdm(range(0, len(embeddings_batch), self.max_batch_size), desc="Updating embeddings ⌛"):
             embeddings_to_upsert = embeddings_batch.embeddings[i : i + self.max_batch_size]
@@ -74,20 +77,16 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
             for id in ids
         ]
 
-    def get_all_embeddings(self) -> BatchOfEmbeddings:
+    def get_all_embeddings(self) -> BatchBusinessEmbeddings:
         existing_embeddings = self.collection.count()
- 
+
         batch_retrieval_size = 5000
-        
-        embeddings_batch = BatchOfEmbeddings()
+
+        embeddings_batch = BatchBusinessEmbeddings()
 
         for i in tqdm.tqdm(range(0, existing_embeddings, batch_retrieval_size), desc="Getting all embeddings ⌛"):
             try:
-                batch = self.collection.get(
-                    include=["metadatas", "embeddings"],
-                    limit=batch_retrieval_size,
-                    offset=i
-                )
+                batch = self.collection.get(include=["metadatas", "embeddings"], limit=batch_retrieval_size, offset=i)
             except Exception as e:
                 self.logger.error(f"Error getting batch of embeddings: {e}")
                 continue
@@ -101,7 +100,7 @@ class EmbeddingsChromaDbAdapter(EmbeddingsRepositoryInterface):
                     )
 
                     embeddings_batch.add_embeddings(embedding)
-            
+
             except Exception as e:
                 self.logger.error(f"Error getting embeddings: {e}")
                 self.logger.error(f"Batch: {batch['ids'][position]}")
